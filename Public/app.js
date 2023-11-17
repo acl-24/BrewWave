@@ -1,19 +1,25 @@
 // app.js
 // JavaScript code goes here
-let categorySection, radioSection, categoryItems, radioItems;
-let sectionList = {CATEGORY: 'category', RADIO: 'radio'};
+let categorySection, radioSection, categoryItems, radioItems, settingsSection, settingsItems;
+let sectionList = {CATEGORY: 'category', RADIO: 'radio', SETTINGS: 'settings'};
 let currentSectionDisplayed;
 let currentIndex = 0;
+let previousTabDisplayed;
+let settingsList = {VOLUME: 'volume', HTIME : 'htime', NUMRADIO: 'numradio', NUMCAT: 'numcat'};
 
 document.addEventListener('DOMContentLoaded', function () {
     categoryItems = document.querySelectorAll(".category-item");
     radioItems = document.querySelectorAll(".radio-item");
+    settingsItems = document.querySelectorAll(".settings-item");
     categorySection = document.querySelector("#category-tab-section");
     radioSection = document.querySelector("#radio-tab-section");
+    settingsSection = document.querySelector("#settings-tab-section");
     
     // set current tab displayed
     currentSectionDisplayed = sectionList.CATEGORY;
     radioSection.style.display = "none";
+    settingsSection.style.display = "none";
+    
     
     //starting highlighting process
     highlightGridItems(categoryItems);
@@ -26,6 +32,11 @@ document.addEventListener('keydown', function(e) {
             getRadioStationByCategory();
             toggleTabVisibility();
         }
+    }
+
+    if (keyPressed === "a"){
+        toggleSettingsVisibility();
+        
     }
 })
 
@@ -42,18 +53,50 @@ function highlightGridItems(gridItems) {
     setInterval(updateHighlight, 3000);
 }
 
+// used to navigate between category and settings
 function toggleTabVisibility(){
     if (currentSectionDisplayed === sectionList.CATEGORY) {
         currentSectionDisplayed = sectionList.RADIO;
         categorySection.style.display = "none";
         radioSection.style.display = "block";
+        console.log("Opening Radio");
     }
     else {
         currentSectionDisplayed = sectionList.CATEGORY;
         categorySection.style.display = "block";
-        radioSection.style.display = "none";
+        console.log("Opening Category");
     }
 }
+
+// used to navigate to/from settings tab
+function toggleSettingsVisibility(){
+    if (currentSectionDisplayed === sectionList.CATEGORY) {
+        previousTabDisplayed = sectionList.CATEGORY;
+        currentSectionDisplayed = sectionList.SETTINGS;
+        categorySection.style.display = "none";
+        settingsSection.style.display = "block";
+        console.log("Opening Settings");
+    }
+    else if (currentSectionDisplayed === sectionList.RADIO) {
+        previousTabDisplayed = sectionList.RADIO;
+        currentSectionDisplayed = sectionList.SETTINGS;
+        settingsSection.style.display = "block";
+        radioSection.style.display = "none";
+        console.log("Opening Settings");
+    }
+    else {        
+        currentSectionDisplayed = previousTabDisplayed;
+        settingsSection.style.display = "none";
+        
+        if (currentSectionDisplayed === sectionList.CATEGORY) {
+            categorySection.style.display = "block";
+        }
+        else {
+            radioSection.style.display = "block";
+        }
+    }
+}
+
 
 async function getRadioStationByCategory(){
     let categoryItem = categoryItems[currentIndex];
@@ -70,4 +113,22 @@ async function getRadioStationByCategory(){
     } catch (error) {
         console.error('Error:', error);
     }
+}
+
+async function getSettings(){
+    let settingsItem = settingsItems[currentIndex];
+    let settingsName = settingsItem.querySelector("p").innerText.toLowerCase();
+
+    /*
+    try {
+        const response = await fetch(`http://localhost:3000/api/radio?category=${encodeURIComponent(settingsName)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(data); 
+    } catch (error) {
+        console.error('Error:', error);
+    } */
 }
