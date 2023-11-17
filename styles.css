@@ -14,12 +14,8 @@ body {
 }
 
 /* classlist usage */
-.highlight-on {
+.highlight {
     border: 5px solid var(--maroon);
-}
-
-.highlight-off {
-    border: none;
 }
 
 /* styling */
