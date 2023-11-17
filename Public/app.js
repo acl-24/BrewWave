@@ -74,6 +74,8 @@ async function getRadioStationByCategory(){
           limit: 100,
           offset: 0,
         });
+
+        console.log("Station Retrieved Successully");
     
         return stations;
       } catch (error) {
