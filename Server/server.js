@@ -1,19 +1,16 @@
-// server.js
+import express from 'express';
+import path from 'path';
+import cors from 'cors';
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+import { RadioBrowserApi } from 'radio-browser-api';
 
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
 const app = express();
 const port = 3000;
-const { RadioBrowserApi, StationSearchType } = require('radio-browser-api');
-
-const radio_api = new RadioBrowserApi('My Radio App')
+const radio_api = new RadioBrowserApi('My Radio App');
 
 app.use(cors());
 
-app.use(express.static(path.join(__dirname, 'Public')));
-
-app.get('/api/radio', async(req, res) => {
+app.get('/api/radio', async (req, res) => {
   try {
     const category = req.query.category;
     const stations = await getRadioStationByCategory(category);
@@ -30,15 +27,14 @@ async function getRadioStationByCategory(category) {
     const stations = await radio_api.searchStations({
       tagList: [category],
       limit: 100,
-      offset: 0
+      offset: 0,
     });
-  
+
     return stations;
-  } catch(error) {
+  } catch (error) {
     console.error('Error:', error);
     throw new Error('Error fetching radio stations');
   }
-
 }
 
 app.listen(port, () => {

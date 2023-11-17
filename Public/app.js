@@ -1,9 +1,14 @@
 // app.js
 // JavaScript code goes here
+import { RadioBrowserApi, StationSearchType } from 'https://cdn.skypack.dev/radio-browser-api';
+
 let categorySection, radioSection, categoryItems, radioItems;
 let sectionList = {CATEGORY: 'category', RADIO: 'radio'};
 let currentSectionDisplayed;
 let currentIndex = 0;
+
+const radio_api = new RadioBrowserApi('My Radio App')
+
 
 document.addEventListener('DOMContentLoaded', function () {
     categoryItems = document.querySelectorAll(".category-item");
@@ -23,11 +28,15 @@ document.addEventListener('keydown', function(e) {
     const keyPressed = e.key;
     if (keyPressed === "s"){
         if (currentSectionDisplayed === sectionList.CATEGORY) {
-            getRadioStationByCategory();
-            toggleTabVisibility();
+            handleSKeyPressed();
         }
     }
 })
+
+async function handleSKeyPressed() {
+    await getRadioStationByCategory();
+    toggleTabVisibility();
+}
 
 function highlightGridItems(gridItems) {
     currentIndex = 0;
@@ -60,14 +69,15 @@ async function getRadioStationByCategory(){
     let categoryName = categoryItem.querySelector("p").innerText.toLowerCase();
 
     try {
-        const response = await fetch(`http://localhost:3000/api/radio?category=${encodeURIComponent(categoryName)}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log(data); 
-    } catch (error) {
+        const stations = await radio_api.searchStations({
+          tagList: [categoryName],
+          limit: 100,
+          offset: 0,
+        });
+    
+        return stations;
+      } catch (error) {
         console.error('Error:', error);
-    }
+        throw new Error('Error fetching radio stations');
+      }
 }
