@@ -1,0 +1,25 @@
+{
+  "name": "nathacks23",
+  "version": "1.0.0",
+  "description": "Radio App for BCI",
+  "main": "app.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acl-24/nathacks23.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/acl-24/nathacks23/issues"
+  },
+  "homepage": "https://github.com/acl-24/nathacks23#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
+    "radio-browser-api": "^6.0.1"
+  }
+}
