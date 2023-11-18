@@ -8,7 +8,10 @@ let currentSectionDisplayed;
 let intervalID;
 let currentIndex = 0;
 let previousTabDisplayed;
-let settingsList = {VOLUME: 'volume', HTIME : 'htime', NUMRADIO: 'numradio', NUMCAT: 'numcat'};
+let volume, htime, num_stations, num_cat;
+
+let volumeItems, hlightItems, numRadioItems, numCatItems;
+let choosingSetting;
 
 let radioPlaying = false;
 
@@ -28,6 +31,18 @@ document.addEventListener('DOMContentLoaded', function () {
     radioSection.style.display = "none";
     settingsSection.style.display = "none";
     
+    // default settings
+    //let allSettingsItems = document.querySelectorAll(".settings-value-items");
+    volumeItems = document.querySelectorAll("#volume-list div");
+    hlightItems = document.querySelectorAll("#highlight-list div");
+    numRadioItems = document.querySelectorAll("#num-radio-list div");
+    numCatItems = document.querySelectorAll("#num-cat-list div");
+
+    volume = 50;
+    htime = 3
+    num_stations = 4;
+    num_cat = 9;
+    choosingSetting = "none";
     
     //starting highlighting process
     highlightGridItems(categoryItems);
@@ -46,8 +61,7 @@ document.addEventListener('keydown', function(e) {
     }
 
     if (keyPressed === "a"){
-        toggleSettingsVisibility();
-        
+        handleKeyPressedSettings();
     }
 })
 
@@ -65,6 +79,7 @@ async function handleSKeyPressedRadio() {
     if (!radioPlaying) {
         clearInterval(intervalID);
         radioPlayer.play();
+        highlightGridItems(categoryItems);
         radioPlaying = true;
     } else {
         radioPlayer.pause();
@@ -87,7 +102,6 @@ function loadRadioStation() {
     });
 }
 
-
 function highlightGridItems(gridItems) {
     currentIndex = 0;
 
@@ -96,12 +110,59 @@ function highlightGridItems(gridItems) {
         gridItems[currentIndex].classList.add("highlight-tab");
         currentIndex = (currentIndex + 1) % gridItems.length;
     }
-
+   
     updateHighlight();
     intervalID = setInterval(updateHighlight, 3000);
 }
 
 // used to navigate between category and settings
+function handleKeyPressedSettings() {
+    if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting === "none") {
+        choosingSetting = true;
+        let settingIndex = currentIndex;
+        console.log(settingIndex);
+        clearInterval(intervalID);
+    
+        if (settingIndex == 1) {
+            highlightGridItems(volumeItems);
+            choosingSetting =  volumeItems;
+        }
+        else if (settingIndex == 2) {
+            highlightGridItems(hlightItems);
+            choosingSetting = hlightItems;
+        }
+        else if (settingIndex == 3) {
+            highlightGridItems(numRadioItems);
+            choosingSetting = numRadioItems;
+        }
+        else if (settingIndex ==4) {
+            highlightGridItems(numCatItems);
+            choosingSetting = numCatItems;
+        }
+        else {
+            // navigate back to category screen
+            settingsSection.style.display = "none";
+            categorySection.style.display = "block";
+            clearInterval(intervalID);
+            highlightGridItems(categoryItems);
+            choosingSetting = "none"
+        }
+    }
+    else if (choosingSetting !== "none") {
+        /*
+        let index = currentIndex;
+        console.log(index);
+        let i = choosingSetting[index-1];
+        console.log(i.textContent);
+        */
+    }
+    else {
+        toggleSettingsVisibility();
+    }
+    
+}
+
+
 function toggleTabVisibility(){
     if (currentSectionDisplayed === sectionList.CATEGORY) {
         currentSectionDisplayed = sectionList.RADIO;
@@ -123,6 +184,8 @@ function toggleSettingsVisibility(){
         currentSectionDisplayed = sectionList.SETTINGS;
         categorySection.style.display = "none";
         settingsSection.style.display = "block";
+        clearInterval(intervalID);
+        highlightGridItems(settingsItems);
         console.log("Opening Settings");
     }
     else if (currentSectionDisplayed === sectionList.RADIO) {
@@ -130,6 +193,8 @@ function toggleSettingsVisibility(){
         currentSectionDisplayed = sectionList.SETTINGS;
         settingsSection.style.display = "block";
         radioSection.style.display = "none";
+        clearInterval(intervalID);
+        highlightGridItems(settingsItems);
         console.log("Opening Settings");
     }
     else {        
@@ -138,9 +203,13 @@ function toggleSettingsVisibility(){
         
         if (currentSectionDisplayed === sectionList.CATEGORY) {
             categorySection.style.display = "block";
+            clearInterval(intervalID);
+            highlightGridItems(categoryItems);
         }
         else {
             radioSection.style.display = "block";
+            clearInterval(intervalID);
+            highlightGridItems(radioItems);
         }
     }
 }
