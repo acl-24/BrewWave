@@ -85,7 +85,6 @@ body {
     margin: 10px;
     margin-left: 25px;
     margin-right: 25px;
-    filter: invert(17%) sepia(1%) saturate(4878%) hue-rotate(314deg) brightness(111%) contrast(97%);
 }
 
 #settings-img {
@@ -95,6 +94,7 @@ body {
 #refresh-img {
     float: left;
 }
+
 .radio-list-layout {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

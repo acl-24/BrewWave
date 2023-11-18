@@ -2,12 +2,15 @@
 // JavaScript code goes here
 import { RadioBrowserApi, StationSearchType } from 'https://cdn.skypack.dev/radio-browser-api';
 
-let categorySection, radioSection, categoryItems, radioItems, stationList;
+let categorySection, radioSection, categoryItems, radioItems, navigationItems, stationList;
 let sectionList = {CATEGORY: 'category', RADIO: 'radio'};
 let currentSectionDisplayed;
 let intervalID;
 let currentIndex = 0;
 let radioPlaying = false;
+var currentCategoryIndex = 0;
+var numCategoriesDisplayed = 8;
+var navigationSelected = false;
 
 const radio_api = new RadioBrowserApi('My Radio App')
 
@@ -17,10 +20,13 @@ document.addEventListener('DOMContentLoaded', function () {
     radioItems = document.querySelectorAll(".radio-item");
     categorySection = document.querySelector("#category-tab-section");
     radioSection = document.querySelector("#radio-tab-section");
+    navigationItems = document.querySelectorAll(".navigation-icon");
     
     // set current tab displayed
     currentSectionDisplayed = sectionList.CATEGORY;
     radioSection.style.display = "none";
+
+    displayCategories();
     
     //starting highlighting process
     highlightGridItems(categoryItems);
@@ -30,7 +36,20 @@ document.addEventListener('keydown', function(e) {
     const keyPressed = e.key;
     if (keyPressed === "s"){
         if (currentSectionDisplayed === sectionList.CATEGORY) {
-            handleSKeyPressedCategory();
+            // If the navigation tile has already been selected
+            if (navigationSelected) {
+                handleSKeyPressedNavigation();
+            } else {
+                // If the current index is 0, the navigation tile is selected
+                if (currentIndex == 0) {
+                    clearInterval(intervalID);
+                    highlightGridItems(navigationItems);
+                    navigationSelected = true;
+                // Otherwise a category is selected
+                } else {
+                    handleSKeyPressedCategory();
+                }
+            }
         }
 
         if (currentSectionDisplayed === sectionList.RADIO) {
@@ -38,6 +57,23 @@ document.addEventListener('keydown', function(e) {
         }
     }
 })
+
+// Displays the next set of categories
+function displayCategories() {
+    for (let index = 0; index < categoryItems.length; index++) {
+        var element = categoryItems[index];
+
+        if (currentCategoryIndex <= index && index < currentCategoryIndex + numCategoriesDisplayed) {
+            element.style.display = "block";
+        } else {
+            element.style.display = "none";
+        }
+    }
+
+    // Displays the navigation item
+    var element = document.getElementById("navigation-item");
+    element.style.display = "block";
+}
 
 async function handleSKeyPressedCategory() {
     stationList = await getRadioStationByCategory();
@@ -64,6 +100,28 @@ async function handleSKeyPressedRadio() {
     toggleAudioControlVisibility();
 }
 
+// Handles the case when the one of the naviagation buttons is selected
+function handleSKeyPressedNavigation() {
+    // If current index = 1 the refresh button is highlighted
+    if (currentIndex == 1) {
+        // Show the next page of categories
+        if (currentCategoryIndex + numCategoriesDisplayed > categoryItems.length) {
+            currentCategoryIndex = 0;
+        } else {
+            currentCategoryIndex += numCategoriesDisplayed;
+        }
+
+        navigationItems.forEach(item => item.classList.remove("highlight-tab"));
+    
+        displayCategories();
+        clearInterval(intervalID);
+        highlightGridItems(categoryItems);
+        navigationSelected = false;
+    } else {
+        // TODO: display the settings page
+    }
+}
+
 function loadRadioStation() {
     let radioNameElements = document.querySelectorAll(".radio-item-name")
     let radioPlayers = document.querySelectorAll(".radio-audio")
@@ -82,7 +140,10 @@ function highlightGridItems(gridItems) {
     function updateHighlight() {
         gridItems.forEach(item => item.classList.remove("highlight-tab"));
         gridItems[currentIndex].classList.add("highlight-tab");
-        currentIndex = (currentIndex + 1) % gridItems.length;
+        
+        do {
+            currentIndex = (currentIndex + 1) % gridItems.length;
+        } while (gridItems[currentIndex].style.display == "none");
     }
 
     updateHighlight();
@@ -116,7 +177,7 @@ function toggleAudioControlVisibility(){
 }
 
 async function getRadioStationByCategory(){
-    let categoryItem = categoryItems[currentIndex];
+    let categoryItem = categoryItems[currentIndex - 1];
     let categoryName = categoryItem.querySelector("p").innerText.toLowerCase();
 
     try {
