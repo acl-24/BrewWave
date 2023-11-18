@@ -6,11 +6,17 @@
     <title>App Name</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <script src="app.js"></script>
+    <script type="module">
+        import { RadioBrowserApi, StationSearchType } from 'https://cdn.skypack.dev/radio-browser-api';
+    </script>
+    <script src="app.js" type="module"></script>
+
     <div class="app-name-section"> 
         <h2 class="app-title-text">This is the App Name</h2>
     </div>
+
     <div class="tab-section" id="category-tab-section">
         <div class="tab-section-subtitle" id="catogory-section-subtitle">
             <h3 class="app-subtitle-text">Choose a category to begin</h3>
