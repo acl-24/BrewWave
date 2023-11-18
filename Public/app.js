@@ -7,6 +7,7 @@ let sectionList = {CATEGORY: 'category', RADIO: 'radio'};
 let currentSectionDisplayed;
 let intervalID;
 let currentIndex = 0;
+let currentIconIndex = 0;
 let radioPlaying = false;
 var currentCategoryIndex = 0;
 var numCategoriesDisplayed = 8;
@@ -92,10 +93,19 @@ async function handleSKeyPressedRadio() {
         toggleAudioControlVisibility();
         radioPlaying = true;
     } else {
-        await radioPlayer.pause();
-        toggleAudioControlVisibility();
-        highlightGridItems(radioItems);
-        radioPlaying = false;
+        if (currentIconIndex == 0) {
+            await radioPlayer.pause();
+            toggleAudioControlVisibility();
+            clearInterval(intervalID);
+            radioPlaying = false;
+        }
+        if (currentIconIndex == 1) {
+            await radioPlayer.pause();
+            toggleAudioControlVisibility();
+            clearInterval(intervalID);
+            highlightGridItems(radioItems);
+            radioPlaying = false;
+        }
     }
 }
 
@@ -149,6 +159,19 @@ function highlightGridItems(gridItems) {
     intervalID = setInterval(updateHighlight, 3000);
 }
 
+function highlightIconItems(iconItems) {
+    currentIconIndex = 0;
+
+    function updateHighlight() {
+        iconItems.forEach(item => item.classList.remove("highlight-icon"));
+        currentIconIndex = (currentIconIndex + 1) % iconItems.length;
+        iconItems[currentIconIndex].classList.add("highlight-icon");
+    }
+
+    updateHighlight();
+    intervalID = setInterval(updateHighlight, 3000);
+}
+
 function toggleTabVisibility(){
     if (currentSectionDisplayed === sectionList.CATEGORY) {
         currentSectionDisplayed = sectionList.RADIO;
@@ -172,8 +195,19 @@ function toggleAudioControlVisibility(){
     else {
         play_section.style.display = "none";
         pause_quit_section.style.display = "flex";
+        enterPauseQuitSelection(pause_quit_section);
     }
 }
+
+function enterPauseQuitSelection(controlSection) {
+    let pauseButton = controlSection.querySelector('[aria-label="Pause"]');
+    let quitButton = controlSection.querySelector('[aria-label="Quit"]');
+
+    clearInterval(intervalID);
+    const audioControlItems = [pauseButton, quitButton];
+    highlightIconItems(audioControlItems);
+}
+
 
 async function getRadioStationByCategory(){
     let categoryItem = categoryItems[currentIndex - 1];
