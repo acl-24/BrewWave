@@ -14,12 +14,12 @@ body {
 }
 
 /* classlist usage */
-.highlight-on {
+.highlight-tab {
     border: 5px solid var(--maroon);
 }
 
-.highlight-off {
-    border: none;
+.highlight-icon {
+    border: 2px solid var(--maroon);
 }
 
 /* styling */
@@ -95,3 +95,44 @@ body {
 #refresh-img {
     float: left;
 }
+.radio-list-layout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
+
+.radio-item {
+    border-radius: 5px;
+    background-color: var(--cream);
+    padding-left: 10px;
+    padding-right: 10px;
+    display: block;
+    justify-content: center;
+    align-items: center;
+}
+
+.radio-item-name {
+    display: flex;
+    color: var(--darker-brown);
+    align-self: center;
+    justify-content: center;
+}
+
+.icon-button-container-play {
+    display: flex;
+    align-self: center;
+    justify-content: center;
+}
+
+.icon-button-container-quit {
+    display: none;
+    align-self: center;
+    justify-content: center;
+}
+
+.icon-button {
+    background-color: transparent;
+    border: none;
+}
+
