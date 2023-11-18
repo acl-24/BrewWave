@@ -125,7 +125,7 @@ body {
 .radio-item-name {
     color: var(--darker-brown);
     flex: initial;
-    font-size: 32px;
+    font-size: 24px;
     max-width: 80%;
     white-space: nowrap;
     overflow: hidden;

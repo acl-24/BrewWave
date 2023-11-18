@@ -9,14 +9,21 @@ const sectionList = {CATEGORY: 'category', RADIO: 'radio'};
 let currentSectionDisplayed;
 let categoryNameDiv;
 let intervalID;
+let menuHighlightId;
 
 /**
  * Represents the length that a certain station is highlighted
  * @type {number}
  */
-const HIGHLIGHT_DELAY_SECONDS = 1;
+let highlightDelaySeconds = 1;
 
 let currentIndex = 0;
+
+/**
+ * Used when we are paused at a given currentIndex
+ * @type {number}
+ */
+let currentMenuIndex = 0;
 
 let radioPlaying = false;
 let categoryStartIndex = 0;
@@ -62,7 +69,8 @@ document.addEventListener('keydown', function (e) {
             } else {
                 // If the current index is 0, the navigation tile is selected
                 if (currentIndex === settingsIndex) {
-                    highlightGridItems(navigationItems);
+                    clearInterval(intervalID); // Highlight pauses on this item
+                    highlightMenuHighlight(navigationItems);
                     navigationSelected = true;
                     // Otherwise a category is selected
                 } else {
@@ -128,7 +136,7 @@ async function handleSKeyPressedRadio() {
         toggleAudioControlVisibility();
         toggleRadioControlVisibility(radioItems[currentIndex]);
     } else {
-        if (currentIndex === 0) { // pause
+        if (currentMenuIndex === 0) { // pause
             playPauseRadio(radioPlayer);
         } else { // select new
             radioPlayer.pause();
@@ -141,7 +149,7 @@ async function handleSKeyPressedRadio() {
 
 // Handles the case when the one of the navigation buttons is pressed
 function handleSKeyPressedNavigation() {
-    if (currentIndex ===  0) { // Refresh button
+    if (currentMenuIndex ===  0) { // Refresh button
         // Show the next page of categories
         if (categoryStartIndex + numCategoriesDisplayed > categoryItems.length) {
             categoryStartIndex = 0;
@@ -173,15 +181,26 @@ function displayRadioStationsInformation(stationList) {
     });
 }
 
+function highlightMenuHighlight(iconItems) {
+    clearInterval(menuHighlightId); // Halt the previous highlight operation
+    currentMenuIndex = 0;
+    iconItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE)); // Remove highlight from all previous items
+
+    const visibleGridItems = [...iconItems].filter(gridItem => gridItem.style.display !== "none");
+    visibleGridItems[currentMenuIndex].classList.add(HIGHLIGHT_ITEM_STYLE);
+    menuHighlightId = setInterval(updateMenuHighlight, highlightDelaySeconds * 1000, visibleGridItems);
+}
+
 
 function highlightGridItems(gridItems, resetIndex=true) {
     clearInterval(intervalID); // Halt the previous highlight operation
+    clearInterval(menuHighlightId); // Halt any submenu highlighting
     currentIndex = resetIndex ? 0 : currentIndex;
     gridItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE)); // Remove highlight from all previous items
 
     const visibleGridItems = [...gridItems].filter(gridItem => gridItem.style.display !== "none");
-    gridItems[currentIndex].classList.add(HIGHLIGHT_ITEM_STYLE);
-    intervalID = setInterval(updateHighlight, HIGHLIGHT_DELAY_SECONDS * 1000, visibleGridItems);
+    visibleGridItems[currentIndex].classList.add(HIGHLIGHT_ITEM_STYLE);
+    intervalID = setInterval(updateHighlight, highlightDelaySeconds * 1000, visibleGridItems);
 }
 
 function updateHighlight(gridItems) {
@@ -189,6 +208,13 @@ function updateHighlight(gridItems) {
     const nextIndex = (currentIndex + 1) % gridItems.length;
     gridItems[nextIndex].classList.add(HIGHLIGHT_ITEM_STYLE);
     currentIndex = nextIndex;
+}
+
+function updateMenuHighlight(gridItems) {
+    gridItems[currentMenuIndex].classList.remove(HIGHLIGHT_ITEM_STYLE);
+    const nextIndex = (currentMenuIndex + 1) % gridItems.length;
+    gridItems[nextIndex].classList.add(HIGHLIGHT_ITEM_STYLE);
+    currentMenuIndex = nextIndex;
 }
 
 function toggleTabVisibility() {
@@ -228,7 +254,7 @@ function toggleRadioControlVisibility(radioItem) {
         playButton.style.display = "inline-flex";
         pauseButton.style.display = "none";
     }
-    highlightGridItems(quitPauseButtons);
+    highlightMenuHighlight(quitPauseButtons);
 }
 
 function setCategoryName(categoryName) {
