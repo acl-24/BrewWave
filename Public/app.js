@@ -113,7 +113,7 @@ function highlightGridItems(gridItems) {
     }
    
     updateHighlight();
-    intervalID = setInterval(updateHighlight, 3000);
+    intervalID = setInterval(updateHighlight, htime*1000);
 }
 
 // used to navigate between category and settings
