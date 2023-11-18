@@ -7,7 +7,6 @@ let sectionList = {CATEGORY: 'category', RADIO: 'radio', SETTINGS: 'settings'};
 let currentSectionDisplayed;
 let intervalID;
 let currentIndex = 0;
-let previousTabDisplayed;
 let volume, htime, num_stations, num_cat;
 
 let volumeItems, hlightItems, numRadioItems, numCatItems;
@@ -142,6 +141,7 @@ function handleKeyPressedSettings() {
         }
         else {
             // navigate back to category screen
+            currentSectionDisplayed = sectionList.CATEGORY;
             settingsSection.style.display = "none";
             categorySection.style.display = "block";
             clearInterval(intervalID);
@@ -149,7 +149,7 @@ function handleKeyPressedSettings() {
             choosingSetting = "none"
         }
     }
-    else if (choosingSetting !== "none") {
+    else if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting !== "none") {
         let index = currentIndex;
         let setting_value = choosingSetting[index-1];
 
@@ -197,7 +197,6 @@ function toggleTabVisibility(){
 // used to navigate to/from settings tab
 function toggleSettingsVisibility(){
     if (currentSectionDisplayed === sectionList.CATEGORY) {
-        previousTabDisplayed = sectionList.CATEGORY;
         currentSectionDisplayed = sectionList.SETTINGS;
         categorySection.style.display = "none";
         settingsSection.style.display = "block";
@@ -205,29 +204,13 @@ function toggleSettingsVisibility(){
         highlightGridItems(settingsItems);
         console.log("Opening Settings");
     }
-    else if (currentSectionDisplayed === sectionList.RADIO) {
-        previousTabDisplayed = sectionList.RADIO;
-        currentSectionDisplayed = sectionList.SETTINGS;
-        settingsSection.style.display = "block";
-        radioSection.style.display = "none";
+    else {        
+        currentSectionDisplayed = sectionList.CATEGORY;
+        categorySection.style.display = "block"
+        settingsSection.style.display = "none";
         clearInterval(intervalID);
         highlightGridItems(settingsItems);
-        console.log("Opening Settings");
-    }
-    else {        
-        currentSectionDisplayed = previousTabDisplayed;
-        settingsSection.style.display = "none";
-        
-        if (currentSectionDisplayed === sectionList.CATEGORY) {
-            categorySection.style.display = "block";
-            clearInterval(intervalID);
-            highlightGridItems(categoryItems);
-        }
-        else {
-            radioSection.style.display = "block";
-            clearInterval(intervalID);
-            highlightGridItems(radioItems);
-        }
+        console.log("Opening Category");
     }
 }
 
