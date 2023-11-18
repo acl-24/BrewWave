@@ -14,7 +14,7 @@ let intervalID;
  * Represents the length that a certain station is highlighted
  * @type {number}
  */
-const HIGHLIGHT_DELAY_SECONDS = 1;
+const HIGHLIGHT_DELAY_SECONDS = 3;
 
 let currentIndex = 0;
 
