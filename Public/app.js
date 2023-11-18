@@ -88,16 +88,15 @@ async function handleSKeyPressedRadio() {
 
     if (!radioPlaying) {
         clearInterval(intervalID);
-        radioPlayer.play();
+        await radioPlayer.play();
+        toggleAudioControlVisibility();
         radioPlaying = true;
     } else {
-        radioPlayer.pause();
-        currentIndex = 0;
+        await radioPlayer.pause();
+        toggleAudioControlVisibility();
         highlightGridItems(radioItems);
         radioPlaying = false;
     }
-
-    toggleAudioControlVisibility();
 }
 
 // Handles the case when the one of the naviagation buttons is selected
@@ -167,12 +166,12 @@ function toggleAudioControlVisibility(){
     const play_section = radioItems[currentIndex-1].querySelector(".icon-button-container-play");
     const pause_quit_section = radioItems[currentIndex-1].querySelector(".icon-button-container-quit");
     if (radioPlaying) {
-        play_section.style.display = "none";
-        pause_quit_section.style.display = "flex";
-    }
-    else {
         play_section.style.display = "flex";
         pause_quit_section.style.display = "none";
+    }
+    else {
+        play_section.style.display = "none";
+        pause_quit_section.style.display = "flex";
     }
 }
 
