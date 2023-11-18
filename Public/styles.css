@@ -69,6 +69,30 @@ body {
 
 .category-item-text {
     color: var(--darker-brown);
+    float: left;
+    font-size: 30px;
+    font-size: 3vw;
+}
+
+.category-icon {
+    width: 8vw;
+    float: right;
+    margin: 10px;
+}
+
+.navigation-icon {
+    width: 8vw;
+    margin: 10px;
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+#settings-img {
+    float: right;
+}
+
+#refresh-img {
+    float: left;
 }
 
 .radio-list-layout {

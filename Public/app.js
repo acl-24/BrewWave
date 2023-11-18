@@ -14,6 +14,9 @@ let choosingSetting;
 let settingIndex;
 
 let radioPlaying = false;
+var currentCategoryIndex = 0;
+var numCategoriesDisplayed = 8;
+var navigationSelected = false;
 
 const radio_api = new RadioBrowserApi('My Radio App')
 
@@ -25,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     categorySection = document.querySelector("#category-tab-section");
     radioSection = document.querySelector("#radio-tab-section");
     settingsSection = document.querySelector("#settings-tab-section");
+    navigationItems = document.querySelectorAll(".navigation-icon");
     
     // set current tab displayed
     currentSectionDisplayed = sectionList.CATEGORY;
@@ -43,6 +47,8 @@ document.addEventListener('DOMContentLoaded', function () {
     num_stations = 4;
     num_cat = 9;
     choosingSetting = "none";
+
+    displayCategories();
     
     //starting highlighting process
     highlightGridItems(categoryItems);
@@ -52,7 +58,20 @@ document.addEventListener('keydown', function(e) {
     const keyPressed = e.key;
     if (keyPressed === "s"){
         if (currentSectionDisplayed === sectionList.CATEGORY) {
-            handleSKeyPressedCategory();
+            // If the navigation tile has already been selected
+            if (navigationSelected) {
+                handleSKeyPressedNavigation();
+            } else {
+                // If the current index is 0, the navigation tile is selected
+                if (currentIndex == 0) {
+                    clearInterval(intervalID);
+                    highlightGridItems(navigationItems);
+                    navigationSelected = true;
+                // Otherwise a category is selected
+                } else {
+                    handleSKeyPressedCategory();
+                }
+            }
         }
 
         if (currentSectionDisplayed === sectionList.RADIO) {
@@ -64,6 +83,23 @@ document.addEventListener('keydown', function(e) {
         handleKeyPressedSettings();
     }
 })
+
+// Displays the next set of categories
+function displayCategories() {
+    for (let index = 0; index < categoryItems.length; index++) {
+        var element = categoryItems[index];
+
+        if (currentCategoryIndex <= index && index < currentCategoryIndex + numCategoriesDisplayed) {
+            element.style.display = "block";
+        } else {
+            element.style.display = "none";
+        }
+    }
+
+    // Displays the navigation item
+    var element = document.getElementById("navigation-item");
+    element.style.display = "block";
+}
 
 async function handleSKeyPressedCategory() {
     stationList = await getRadioStationByCategory();
@@ -78,17 +114,37 @@ async function handleSKeyPressedRadio() {
 
     if (!radioPlaying) {
         clearInterval(intervalID);
-        radioPlayer.play();
-        highlightGridItems(categoryItems);
+        await radioPlayer.play();
+        toggleAudioControlVisibility();
         radioPlaying = true;
     } else {
-        radioPlayer.pause();
-        currentIndex = 0;
+        await radioPlayer.pause();
+        toggleAudioControlVisibility();
         highlightGridItems(radioItems);
         radioPlaying = false;
     }
+}
 
-    toggleAudioControlVisibility();
+// Handles the case when the one of the naviagation buttons is selected
+function handleSKeyPressedNavigation() {
+    // If current index = 1 the refresh button is highlighted
+    if (currentIndex == 1) {
+        // Show the next page of categories
+        if (currentCategoryIndex + numCategoriesDisplayed > categoryItems.length) {
+            currentCategoryIndex = 0;
+        } else {
+            currentCategoryIndex += numCategoriesDisplayed;
+        }
+
+        navigationItems.forEach(item => item.classList.remove("highlight-tab"));
+    
+        displayCategories();
+        clearInterval(intervalID);
+        highlightGridItems(categoryItems);
+        navigationSelected = false;
+    } else {
+        // TODO: display the settings page
+    }
 }
 
 function loadRadioStation() {
@@ -108,7 +164,10 @@ function highlightGridItems(gridItems) {
     function updateHighlight() {
         gridItems.forEach(item => item.classList.remove("highlight-tab"));
         gridItems[currentIndex].classList.add("highlight-tab");
-        currentIndex = (currentIndex + 1) % gridItems.length;
+        
+        do {
+            currentIndex = (currentIndex + 1) % gridItems.length;
+        } while (gridItems[currentIndex].style.display == "none");
     }
    
     updateHighlight();
@@ -219,17 +278,17 @@ function toggleAudioControlVisibility(){
     const play_section = radioItems[currentIndex-1].querySelector(".icon-button-container-play");
     const pause_quit_section = radioItems[currentIndex-1].querySelector(".icon-button-container-quit");
     if (radioPlaying) {
-        play_section.style.display = "none";
-        pause_quit_section.style.display = "flex";
-    }
-    else {
         play_section.style.display = "flex";
         pause_quit_section.style.display = "none";
+    }
+    else {
+        play_section.style.display = "none";
+        pause_quit_section.style.display = "flex";
     }
 }
 
 async function getRadioStationByCategory(){
-    let categoryItem = categoryItems[currentIndex];
+    let categoryItem = categoryItems[currentIndex - 1];
     let categoryName = categoryItem.querySelector("p").innerText.toLowerCase();
 
     try {
