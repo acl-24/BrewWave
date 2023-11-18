@@ -12,6 +12,7 @@ let volume, htime, num_stations, num_cat;
 
 let volumeItems, hlightItems, numRadioItems, numCatItems;
 let choosingSetting;
+let settingIndex;
 
 let radioPlaying = false;
 
@@ -36,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
     volumeItems = document.querySelectorAll("#volume-list div");
     hlightItems = document.querySelectorAll("#highlight-list div");
     numRadioItems = document.querySelectorAll("#num-radio-list div");
-    numCatItems = document.querySelectorAll("#num-cat-list div");
+    numCatItems = document.querySelectorAll("#num-categories-list div");
 
     volume = 50;
     htime = 3
@@ -119,7 +120,7 @@ function highlightGridItems(gridItems) {
 function handleKeyPressedSettings() {
     if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting === "none") {
         choosingSetting = true;
-        let settingIndex = currentIndex;
+        settingIndex = currentIndex;
         console.log(settingIndex);
         clearInterval(intervalID);
     
@@ -149,12 +150,28 @@ function handleKeyPressedSettings() {
         }
     }
     else if (choosingSetting !== "none") {
-        /*
         let index = currentIndex;
-        console.log(index);
-        let i = choosingSetting[index-1];
-        console.log(i.textContent);
-        */
+        let setting_value = choosingSetting[index-1];
+
+        if (choosingSetting === volumeItems) {
+            volume = setting_value.dataset.value;
+        }
+        else if (choosingSetting === hlightItems) {
+            htime = setting_value.dataset.value;
+        }
+        else if (choosingSetting === numRadioItems) {
+            num_stations = setting_value.dataset.value;
+        }
+        else if (choosingSetting === numCatItems) {
+            num_cat = setting_value.dataset.value;
+        }
+
+        console.log("Settings:", "V", volume, "H", htime, "#S", num_stations, "#C", num_cat);
+
+        clearInterval(intervalID);
+        highlightGridItems(settingsItems);
+        choosingSetting = "none"
+        
     }
     else {
         toggleSettingsVisibility();
