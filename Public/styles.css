@@ -80,7 +80,7 @@ body {
     margin: 10px;
 }
 
-.navigation-icon {
+.category-navigation-icon, .radio-navigation-icon {
     width: 8vw;
     margin: 10px;
     margin-left: 25px;
