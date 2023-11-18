@@ -2,14 +2,18 @@
 // JavaScript code goes here
 import { RadioBrowserApi, StationSearchType } from 'https://cdn.skypack.dev/radio-browser-api';
 
-let categorySection, radioSection, categoryItems, radioItems, settingsSection, settingsItems;
+let categorySection, radioSection, categoryItems, radioItems, settingsSection, settingsItems, stationList;
 let sectionList = {CATEGORY: 'category', RADIO: 'radio', SETTINGS: 'settings'};
 let currentSectionDisplayed;
+let intervalID;
 let currentIndex = 0;
 let previousTabDisplayed;
 let settingsList = {VOLUME: 'volume', HTIME : 'htime', NUMRADIO: 'numradio', NUMCAT: 'numcat'};
 
+let radioPlaying = false;
+
 const radio_api = new RadioBrowserApi('My Radio App')
+
 
 document.addEventListener('DOMContentLoaded', function () {
     categoryItems = document.querySelectorAll(".category-item");
@@ -33,7 +37,11 @@ document.addEventListener('keydown', function(e) {
     const keyPressed = e.key;
     if (keyPressed === "s"){
         if (currentSectionDisplayed === sectionList.CATEGORY) {
-            handleSKeyPressed();
+            handleSKeyPressedCategory();
+        }
+
+        if (currentSectionDisplayed === sectionList.RADIO) {
+            handleSKeyPressedRadio();
         }
     }
 
@@ -43,22 +51,54 @@ document.addEventListener('keydown', function(e) {
     }
 })
 
-async function handleSKeyPressed() {
-    await getRadioStationByCategory();
+async function handleSKeyPressedCategory() {
+    stationList = await getRadioStationByCategory();
+    loadRadioStation();
     toggleTabVisibility();
+    clearInterval(intervalID);
+    highlightGridItems(radioItems);
 }
+
+async function handleSKeyPressedRadio() {
+    let radioPlayer = radioItems[currentIndex-1].querySelector(".radio-audio")
+
+    if (!radioPlaying) {
+        clearInterval(intervalID);
+        radioPlayer.play();
+        radioPlaying = true;
+    } else {
+        radioPlayer.pause();
+        currentIndex = 0;
+        highlightGridItems(radioItems);
+        radioPlaying = false;
+    }
+
+    toggleAudioControlVisibility();
+}
+
+function loadRadioStation() {
+    let radioNameElements = document.querySelectorAll(".radio-item-name")
+    let radioPlayers = document.querySelectorAll(".radio-audio")
+    radioNameElements.forEach((element, index) => {
+        element.textContent = stationList[index].name;
+    });
+    radioPlayers.forEach((element, index) => {
+        element.src = stationList[index].urlResolved;
+    });
+}
+
 
 function highlightGridItems(gridItems) {
     currentIndex = 0;
 
     function updateHighlight() {
-        gridItems.forEach(item => item.classList.remove("highlight"));
-        gridItems[currentIndex].classList.add("highlight");
+        gridItems.forEach(item => item.classList.remove("highlight-tab"));
+        gridItems[currentIndex].classList.add("highlight-tab");
         currentIndex = (currentIndex + 1) % gridItems.length;
     }
 
     updateHighlight();
-    setInterval(updateHighlight, 3000);
+    intervalID = setInterval(updateHighlight, 3000);
 }
 
 // used to navigate between category and settings
@@ -106,6 +146,19 @@ function toggleSettingsVisibility(){
 }
 
 
+function toggleAudioControlVisibility(){
+    const play_section = radioItems[currentIndex-1].querySelector(".icon-button-container-play");
+    const pause_quit_section = radioItems[currentIndex-1].querySelector(".icon-button-container-quit");
+    if (radioPlaying) {
+        play_section.style.display = "none";
+        pause_quit_section.style.display = "flex";
+    }
+    else {
+        play_section.style.display = "flex";
+        pause_quit_section.style.display = "none";
+    }
+}
+
 async function getRadioStationByCategory(){
     let categoryItem = categoryItems[currentIndex];
     let categoryName = categoryItem.querySelector("p").innerText.toLowerCase();
@@ -113,7 +166,7 @@ async function getRadioStationByCategory(){
     try {
         const stations = await radio_api.searchStations({
           tagList: [categoryName],
-          limit: 100,
+          limit: 20,
           offset: 0,
         });
 
@@ -124,22 +177,4 @@ async function getRadioStationByCategory(){
         console.error('Error:', error);
         throw new Error('Error fetching radio stations');
       }
-}
-
-async function getSettings(){
-    let settingsItem = settingsItems[currentIndex];
-    let settingsName = settingsItem.querySelector("p").innerText.toLowerCase();
-
-    /*
-    try {
-        const response = await fetch(`http://localhost:3000/api/radio?category=${encodeURIComponent(settingsName)}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log(data); 
-    } catch (error) {
-        console.error('Error:', error);
-    } */
 }

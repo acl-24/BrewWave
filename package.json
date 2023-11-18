@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Radio App for BCI",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "start": "node server/server.js"
   },
