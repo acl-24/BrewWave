@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
     settingsSection.style.display = "none";
     
     // default settings
-    //let allSettingsItems = document.querySelectorAll(".settings-value-items");
     volumeItems = document.querySelectorAll("#volume-list div");
     hlightItems = document.querySelectorAll("#highlight-list div");
     numRadioItems = document.querySelectorAll("#num-radio-list div");
@@ -49,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
     numRadioItems[1].classList.add("setting-selected");
     numCatItems[3].classList.add("setting-selected");
 
-    volume = 50;
+    volume = 0.5;
     htime = 3
     num_stations = 4;
     num_cat = 9;
@@ -118,6 +117,7 @@ async function handleSKeyPressedCategory() {
 
 async function handleSKeyPressedRadio() {
     let radioPlayer = radioItems[currentIndex-1].querySelector(".radio-audio")
+    radioPlayer.volume = volume;
 
     if (!radioPlaying) {
         clearInterval(intervalID);
