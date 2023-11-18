@@ -2,7 +2,9 @@
 // JavaScript code goes here
 import { RadioBrowserApi, StationSearchType } from 'https://cdn.skypack.dev/radio-browser-api';
 
-let categorySection, radioSection, categoryItems, radioItems, settingsSection, settingsItems, stationList;
+
+
+let categorySection, radioSection, categoryItems, radioItems, settingsSection, settingsItems, stationList, navigationItems;
 let sectionList = {CATEGORY: 'category', RADIO: 'radio', SETTINGS: 'settings'};
 let currentSectionDisplayed;
 let intervalID;
@@ -41,6 +43,11 @@ document.addEventListener('DOMContentLoaded', function () {
     hlightItems = document.querySelectorAll("#highlight-list div");
     numRadioItems = document.querySelectorAll("#num-radio-list div");
     numCatItems = document.querySelectorAll("#num-categories-list div");
+
+    volumeItems[2].classList.add("setting-selected");
+    hlightItems[2].classList.add("setting-selected");
+    numRadioItems[1].classList.add("setting-selected");
+    numCatItems[3].classList.add("setting-selected");
 
     volume = 50;
     htime = 3
@@ -207,11 +214,23 @@ function handleKeyPressedSettings() {
             highlightGridItems(categoryItems);
             choosingSetting = "none"
         }
+
+        choosingSetting.forEach(item => item.classList.remove("setting-selected"));
     }
     else if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting !== "none") {
         let index = currentIndex;
-        let setting_value = choosingSetting[index-1];
+        let setting_value;
+        choosingSetting.forEach(item => item.classList.remove("highlight-tab"));
 
+        if (index == 0) {
+            setting_value = choosingSetting[4];
+            choosingSetting[4].classList.add("setting-selected");
+        }
+        else {
+            setting_value = choosingSetting[index-1];
+            choosingSetting[index-1].classList.add("setting-selected");
+        }
+    
         if (choosingSetting === volumeItems) {
             volume = setting_value.dataset.value;
         }

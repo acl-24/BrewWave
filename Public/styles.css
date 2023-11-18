@@ -144,7 +144,7 @@ body {
 }
 
 .settings-item {
-    boarder-radius: 5px;
+    border-radius: 5px;
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -167,4 +167,8 @@ body {
 
 .settings-value-text {
     color: var(--darker-brown);
+}
+
+.setting-selected {
+    background-color: var(--beige);
 }
