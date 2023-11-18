@@ -8,21 +8,13 @@ let currentSectionDisplayed;
 let categoryNameDiv;
 let intervalID;
 
-let volume, htime, num_stations, num_cat;
+let volume, num_stations, num_cat;
 
 let volumeItems, hlightItems, numRadioItems, numCatItems;
 let choosingSetting;
 let settingIndex;
 
-var currentCategoryIndex = 0;
-var numCategoriesDisplayed = 8;
-var navigationSelected = false;
-
-/**
- * Represents the length that a certain station is highlighted
- * @type {number}
- */
-const HIGHLIGHT_DELAY_SECONDS = 3;
+let HIGHLIGHT_DELAY_SECONDS, VOLUME_PERCENT;
 
 let currentIndex = 0;
 
@@ -63,12 +55,12 @@ document.addEventListener('DOMContentLoaded', function () {
     numCatItems = document.querySelectorAll("#num-categories-list div");
 
     volumeItems[2].classList.add("setting-selected");
-    hlightItems[2].classList.add("setting-selected");
+    hlightItems[0].classList.add("setting-selected");
     numRadioItems[1].classList.add("setting-selected");
     numCatItems[3].classList.add("setting-selected");
 
-    volume = 0.5;
-    htime = 3
+    VOLUME_PERCENT = 0.5;
+    HIGHLIGHT_DELAY_SECONDS = 1;
     num_stations = 4;
     num_cat = 9;
     choosingSetting = "none";
@@ -98,13 +90,13 @@ document.addEventListener('keydown', function (e) {
             }
         }
 
-        if (currentSectionDisplayed === sectionList.RADIO) {
+        else if (currentSectionDisplayed === sectionList.RADIO) {
             handleSKeyPressedRadio();
         }
-    }
 
-    if (keyPressed === "a"){
-        handleKeyPressedSettings();
+        else if (currentSectionDisplayed === sectionList.SETTINGS) {
+            handleSKeyPressedSettings();
+        }
     }
 })
 
@@ -138,7 +130,7 @@ async function handleSKeyPressedCategory() {
 
 async function handleSKeyPressedRadio() {
     let radioPlayer = radioItems[currentIndex].querySelector(".radio-audio")
-    radioPlayer.volume = volume;
+    radioPlayer.volume = VOLUME_PERCENT;
 
     if (!radioPlaying) {
         clearInterval(intervalID); // Highlight pauses on this item
@@ -168,8 +160,16 @@ function handleSKeyPressedNavigation() {
         displayCategories();
         highlightGridItems(categoryItems);
         navigationSelected = false;
+        
     } else {
-        // TODO: display the settings page
+        // Opens settings
+        currentSectionDisplayed = sectionList.SETTINGS;
+        categorySection.style.display = "none";
+        settingsSection.style.display = "block";
+        clearInterval(intervalID);
+        highlightGridItems(settingsItems);
+        console.log("Opening Settings");
+        navigationSelected = false;
     }
 }
 
@@ -204,28 +204,32 @@ function updateHighlight(gridItems) {
 }
 
 // used to navigate between category and settings
-function handleKeyPressedSettings() {
+function handleSKeyPressedSettings() {
     if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting === "none") {
         choosingSetting = true;
         settingIndex = currentIndex;
         console.log(settingIndex);
         clearInterval(intervalID);
-    
-        if (settingIndex == 1) {
+        
+        if (settingIndex == 0) {
             highlightGridItems(volumeItems);
             choosingSetting =  volumeItems;
+            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
         }
-        else if (settingIndex == 2) {
+        else if (settingIndex == 1) {
             highlightGridItems(hlightItems);
             choosingSetting = hlightItems;
+            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
         }
-        else if (settingIndex == 3) {
+        else if (settingIndex == 2) {
             highlightGridItems(numRadioItems);
             choosingSetting = numRadioItems;
+            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
         }
-        else if (settingIndex ==4) {
+        else if (settingIndex ==3) {
             highlightGridItems(numCatItems);
             choosingSetting = numCatItems;
+            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
         }
         else {
             // navigate back to category screen
@@ -236,28 +240,19 @@ function handleKeyPressedSettings() {
             highlightGridItems(categoryItems);
             choosingSetting = "none"
         }
-
-        choosingSetting.forEach(item => item.classList.remove("setting-selected"));
     }
     else if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting !== "none") {
         let index = currentIndex;
         let setting_value;
         choosingSetting.forEach(item => item.classList.remove("highlight-tab"));
-
-        if (index == 0) {
-            setting_value = choosingSetting[4];
-            choosingSetting[4].classList.add("setting-selected");
-        }
-        else {
-            setting_value = choosingSetting[index-1];
-            choosingSetting[index-1].classList.add("setting-selected");
-        }
+        setting_value = choosingSetting[index];
+        choosingSetting[index].classList.add("setting-selected");
     
         if (choosingSetting === volumeItems) {
-            volume = setting_value.dataset.value;
+            VOLUME_PERCENT = setting_value.dataset.value;
         }
         else if (choosingSetting === hlightItems) {
-            htime = setting_value.dataset.value;
+            HIGHLIGHT_DELAY_SECONDS = setting_value.dataset.value;
         }
         else if (choosingSetting === numRadioItems) {
             num_stations = setting_value.dataset.value;
@@ -266,7 +261,7 @@ function handleKeyPressedSettings() {
             num_cat = setting_value.dataset.value;
         }
 
-        console.log("Settings:", "V", volume, "H", htime, "#S", num_stations, "#C", num_cat);
+        console.log("Settings:", "V", VOLUME_PERCENT, "H", HIGHLIGHT_DELAY_SECONDS, "#S", num_stations, "#C", num_cat);
 
         clearInterval(intervalID);
         highlightGridItems(settingsItems);
@@ -287,28 +282,7 @@ function toggleTabVisibility(){
         radioSection.style.display = "block";
     } else {
         currentSectionDisplayed = sectionList.CATEGORY;
-        categorySection.style.display = "block";
-        console.log("Opening Category");
-    }
-}
-
-// used to navigate to/from settings tab
-function toggleSettingsVisibility(){
-    if (currentSectionDisplayed === sectionList.CATEGORY) {
-        currentSectionDisplayed = sectionList.SETTINGS;
-        categorySection.style.display = "none";
-        settingsSection.style.display = "block";
-        clearInterval(intervalID);
-        highlightGridItems(settingsItems);
-        console.log("Opening Settings");
-    }
-    else {        
-        currentSectionDisplayed = sectionList.CATEGORY;
         categorySection.style.display = "block"
-        settingsSection.style.display = "none";
-        clearInterval(intervalID);
-        highlightGridItems(settingsItems);
-        console.log("Opening Category");
     }
 }
 
