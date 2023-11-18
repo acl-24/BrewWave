@@ -11,7 +11,7 @@ let intervalID;
 let volumeItems, hlightItems, numRadioItems, numCatItems;
 let choosingSetting;
 let settingIndex;
-let num_stations;
+let numStationsDisplayed;
 
 let HIGHLIGHT_DELAY_SECONDS, VOLUME_PERCENT;
 
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     VOLUME_PERCENT = 0.5;
     HIGHLIGHT_DELAY_SECONDS = 1;
-    num_stations = 4;
+    numStationsDisplayed = 4;
     numCategoriesDisplayed = 8;
     choosingSetting = "none";
 
@@ -204,6 +204,7 @@ function updateHighlight(gridItems) {
 
 // used to navigate between category and settings
 function handleSKeyPressedSettings() {
+    // chooses which setting to modify
     if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting === "none") {
         choosingSetting = true;
         settingIndex = currentIndex;
@@ -241,6 +242,7 @@ function handleSKeyPressedSettings() {
             displayCategories();
         }
     }
+    // chooses which value to change the setting to
     else if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting !== "none") {
         let index = currentIndex;
         let setting_value;
@@ -255,25 +257,20 @@ function handleSKeyPressedSettings() {
             HIGHLIGHT_DELAY_SECONDS = setting_value.dataset.value;
         }
         else if (choosingSetting === numRadioItems) {
-            num_stations = setting_value.dataset.value;
+            numStationsDisplayed = setting_value.dataset.value;
         }
         else if (choosingSetting === numCatItems) {
             numCategoriesDisplayed = setting_value.dataset.value;
         }
 
-        console.log("Settings:", "V", VOLUME_PERCENT, "H", HIGHLIGHT_DELAY_SECONDS, "#S", num_stations, "#C", numCategoriesDisplayed);
+        console.log("Settings:", "V", VOLUME_PERCENT, "H", HIGHLIGHT_DELAY_SECONDS, "#S", numStationsDisplayed, "#C", numCategoriesDisplayed);
 
         clearInterval(intervalID);
         highlightGridItems(settingsItems);
         choosingSetting = "none"
         
     }
-    else {
-        toggleSettingsVisibility();
-    }
-    
 }
-
 
 function toggleTabVisibility(){
     if (currentSectionDisplayed === sectionList.CATEGORY) {
