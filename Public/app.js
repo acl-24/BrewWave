@@ -141,7 +141,6 @@ function handleSKeyPressedNavigation() {
 }
 
 function displayRadioStationsInformation(stationList) {
-    console.log(stationList);
     let radioNameElements = document.querySelectorAll(".radio-item-name")
     let radioPlayers = document.querySelectorAll(".radio-audio")
 
