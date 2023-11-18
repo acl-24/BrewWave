@@ -59,7 +59,7 @@ body {
 }
 
 .highlighted-item {
-    outline: 5px solid var(--beige);
+    outline: 8px solid var(--beige);
     -webkit-filter: drop-shadow(0 0 3px var(--maroon));
 }
 
@@ -123,10 +123,10 @@ body {
 }
 
 .radio-item-name {
-    box-sizing: content-box;
     color: var(--darker-brown);
     flex: initial;
-    max-width: 60%;
+    font-size: 32px;
+    max-width: 80%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -144,6 +144,7 @@ body {
 }
 
 .icon-button {
+    outline: none !important;
     background-color: transparent;
     border: none;
 }

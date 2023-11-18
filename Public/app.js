@@ -14,7 +14,7 @@ let intervalID;
  * Represents the length that a certain station is highlighted
  * @type {number}
  */
-const HIGHLIGHT_DELAY_SECONDS = 3;
+const HIGHLIGHT_DELAY_SECONDS = 1;
 
 let currentIndex = 0;
 
@@ -28,6 +28,7 @@ let numCategoriesDisplayed = 8;
 let settingsIndex;
 
 let navigationSelected = false;
+
 const HIGHLIGHT_ITEM_STYLE = "highlighted-item";
 
 const radioBrowserApi = new RadioBrowserApi('My Radio App')
@@ -104,19 +105,37 @@ async function handleSKeyPressedCategory() {
     });
 }
 
+function playPauseRadio(radioPlayer) {
+    if (radioPlaying) {
+        radioPlayer.pause();
+        radioPlaying = false;
+        toggleRadioControlVisibility(radioItems[currentIndex]);
+    } else {
+        radioPlayer.play();
+        radioPlaying = true;
+        toggleAudioControlVisibility(radioItems[currentIndex]);
+    }
+
+}
+
 async function handleSKeyPressedRadio() {
-    let radioPlayer = radioItems[currentIndex].querySelector(".radio-audio")
+    let radioPlayer = radioItems[currentIndex].querySelector(".radio-audio");
 
     if (!radioPlaying) {
         clearInterval(intervalID); // Highlight pauses on this item
         await radioPlayer.play();
         radioPlaying = true;
         toggleAudioControlVisibility();
+        toggleRadioControlVisibility(radioItems[currentIndex]);
     } else {
-        radioPlayer.pause();
-        radioPlaying = false;
-        toggleAudioControlVisibility();
-        highlightGridItems(radioItems, false);
+        if (currentIndex === 0) { // pause
+            playPauseRadio(radioPlayer);
+        } else { // select new
+            radioPlayer.pause();
+            radioPlaying = false;
+            toggleAudioControlVisibility();
+            highlightGridItems(radioItems, false);
+        }
     }
 }
 
@@ -145,7 +164,8 @@ function displayRadioStationsInformation(stationList) {
     let radioPlayers = document.querySelectorAll(".radio-audio")
 
     radioNameElements.forEach((element, index) => {
-        element.textContent = stationList[index].name;
+        let stationName = stationList[index].name;
+        element.textContent = stationName;
     });
 
     radioPlayers.forEach((element, index) => {
@@ -184,16 +204,31 @@ function toggleTabVisibility() {
 }
 
 function toggleAudioControlVisibility() {
-    const play_section = radioItems[currentIndex].querySelector(".icon-button-container-play");
-    const pause_quit_section = radioItems[currentIndex].querySelector(".icon-button-container-quit");
+    const playButton = radioItems[currentIndex].querySelector(".icon-button-container-play");
+    const pauseQuitButtons = radioItems[currentIndex].querySelector(".icon-button-container-quit");
 
     if (radioPlaying) {
-        play_section.style.display = "none";
-        pause_quit_section.style.display = "block";
+        playButton.style.display = "none";
+        pauseQuitButtons.style.display = "block";
     } else {
-        play_section.style.display = "block";
-        pause_quit_section.style.display = "none";
+        playButton.style.display = "block";
+        pauseQuitButtons.style.display = "none";
     }
+}
+
+function toggleRadioControlVisibility(radioItem) {
+    let quitPauseButtons = [...radioItem.querySelector(".icon-button-container-quit").children];
+    const pauseButton = radioItem.querySelector(".pause");
+    const playButton = radioItem.querySelector(".play");
+
+    if (radioPlaying) {
+        playButton.style.display = "none";
+        pauseButton.style.display = "inline-flex";
+    } else {
+        playButton.style.display = "inline-flex";
+        pauseButton.style.display = "none";
+    }
+    highlightGridItems(quitPauseButtons);
 }
 
 function setCategoryName(categoryName) {
@@ -201,7 +236,7 @@ function setCategoryName(categoryName) {
 }
 
 async function getRadioStationsByCategory() {
-    let categoryItem = categoryItems[currentIndex];
+    let categoryItem = categoryItems[categoryStartIndex + currentIndex];
     let categoryName = categoryItem.querySelector("p").innerText;
     setCategoryName(categoryName);
 
