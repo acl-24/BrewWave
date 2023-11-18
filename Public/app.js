@@ -8,11 +8,10 @@ let currentSectionDisplayed;
 let categoryNameDiv;
 let intervalID;
 
-let volume, num_stations, num_cat;
-
 let volumeItems, hlightItems, numRadioItems, numCatItems;
 let choosingSetting;
 let settingIndex;
+let num_stations;
 
 let HIGHLIGHT_DELAY_SECONDS, VOLUME_PERCENT;
 
@@ -57,12 +56,12 @@ document.addEventListener('DOMContentLoaded', function () {
     volumeItems[2].classList.add("setting-selected");
     hlightItems[0].classList.add("setting-selected");
     numRadioItems[1].classList.add("setting-selected");
-    numCatItems[3].classList.add("setting-selected");
+    numCatItems[2].classList.add("setting-selected");
 
     VOLUME_PERCENT = 0.5;
     HIGHLIGHT_DELAY_SECONDS = 1;
     num_stations = 4;
-    num_cat = 9;
+    numCategoriesDisplayed = 8;
     choosingSetting = "none";
 
     displayCategories();
@@ -239,6 +238,7 @@ function handleSKeyPressedSettings() {
             clearInterval(intervalID);
             highlightGridItems(categoryItems);
             choosingSetting = "none"
+            displayCategories();
         }
     }
     else if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting !== "none") {
@@ -258,10 +258,10 @@ function handleSKeyPressedSettings() {
             num_stations = setting_value.dataset.value;
         }
         else if (choosingSetting === numCatItems) {
-            num_cat = setting_value.dataset.value;
+            numCategoriesDisplayed = setting_value.dataset.value;
         }
 
-        console.log("Settings:", "V", VOLUME_PERCENT, "H", HIGHLIGHT_DELAY_SECONDS, "#S", num_stations, "#C", num_cat);
+        console.log("Settings:", "V", VOLUME_PERCENT, "H", HIGHLIGHT_DELAY_SECONDS, "#S", num_stations, "#C", numCategoriesDisplayed);
 
         clearInterval(intervalID);
         highlightGridItems(settingsItems);
