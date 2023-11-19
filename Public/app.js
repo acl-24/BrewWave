@@ -2,18 +2,39 @@
 // JavaScript code goes here
 import {RadioBrowserApi} from 'https://cdn.skypack.dev/radio-browser-api';
 
-let categorySection, radioSection, categoryItems, radioItems, categoryNavigationItems, radioNavigationItems, stationList, settingsSection, settingsItems;
+let categorySection, radioSection, categoryItems, radioItems, categoryNavigationItems, radioNavigationItems,
+    settingsSection, settingsItems, volumeItems, highlightItems, categoryNameDiv;
+
 const sectionList = {CATEGORY: 'category', RADIO: 'radio', SETTINGS: 'settings'};
 let currentSectionDisplayed;
-let categoryNameDiv;
+
+/**
+ * Interval ID used when starting interval highlighting grid items
+ */
 let intervalID;
+
+/**
+ * Interval ID used when starting highlighting within menus
+ */
 let menuIntervalID;
 
-// settings
-let volumeItems, hlightItems;
-let choosingSetting;
-let settingIndex;
-let volumePercent;
+/**
+ * Represents a list of stations returned by the `radioBrowserAPI`
+ */
+let stationList;
+
+/**
+ * Represents if we are currently selecting a setting option
+ * @type {boolean}
+ */
+let choosingSetting = false;
+
+/**
+ * Represents the volume percent for all radios
+ * @type {number}
+ */
+let volumePercent = 0.5;
+
 /**
  * Represents the length that a certain station is highlighted
  * @type {number}
@@ -35,7 +56,7 @@ let radioStartIndex = 0;
 let numRadiosDisplayed = 5;
 
 /**
- * Represents the index of the settings
+ * Represents the index of the settings within the radio and category pages, set when we refresh the pages
  */
 let settingsIndex;
 
@@ -115,14 +136,10 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // default settings
     volumeItems = document.querySelectorAll("#volume-list div");
-    hlightItems = document.querySelectorAll("#highlight-list div");
+    highlightItems = document.querySelectorAll("#highlight-list div");
 
     volumeItems[2].classList.add("setting-selected");
-    hlightItems[0].classList.add("setting-selected");
-
-    volumePercent = 0.5;
-    highlightDelaySeconds = 1;
-    choosingSetting = "none";
+    highlightItems[0].classList.add("setting-selected");
 
     displayCategories();
 
@@ -270,12 +287,9 @@ function handleSKeyPressedNavigation() {
             categoryStartIndex += numCategoriesDisplayed;
         }
 
-        categoryNavigationItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE));
-
         displayCategories();
         highlightGridItems(categoryItems);
-        navigationSelected = false;
-        
+
     } else {
         // Opens settings
         currentSectionDisplayed = sectionList.SETTINGS;
@@ -283,9 +297,9 @@ function handleSKeyPressedNavigation() {
         settingsSection.style.display = "block";
         clearInterval(intervalID);
         highlightGridItems(settingsItems);
-        console.log("Opening Settings");
-        navigationSelected = false;
     }
+    navigationSelected = false;
+    categoryNavigationItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE));
 }
 
 // Handles the selection of the navigation buttons on the category page
@@ -337,55 +351,43 @@ function updateHighlight(gridItems) {
 
 // used to navigate between category and settings
 function handleSKeyPressedSettings() {
-    // chooses which setting to modify
-    if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting === "none") {
+    if (!choosingSetting) {
+        clearInterval(intervalID); // Pause on this setting
         choosingSetting = true;
-        settingIndex = currentIndex;
-        console.log(settingIndex);
-        clearInterval(intervalID);
-        
-        if (settingIndex == 0) {
-            highlightGridItems(volumeItems);
-            choosingSetting =  volumeItems;
-            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
+        if (currentIndex === 0) {
+            highlightMenuItems(volumeItems);
+            volumeItems.forEach(item => item.classList.remove("setting-selected"));
         }
-        else if (settingIndex == 1) {
-            highlightGridItems(hlightItems);
-            choosingSetting = hlightItems;
-            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
+        else if (currentIndex === 1) {
+            highlightMenuItems(highlightItems);
+            highlightItems.forEach(item => item.classList.remove("setting-selected"));
         }
-        else {
-            // navigate back to category screen
+        else { // back button
             currentSectionDisplayed = sectionList.CATEGORY;
             settingsSection.style.display = "none";
             categorySection.style.display = "block";
+            choosingSetting = false;
             clearInterval(intervalID);
             highlightGridItems(categoryItems);
-            choosingSetting = "none"
             displayCategories();
         }
     }
-    // chooses which value to change the setting to
-    else if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting !== "none") {
-        let index = currentIndex;
-        let setting_value;
-        choosingSetting.forEach(item => item.classList.remove("highlight-tab"));
-        setting_value = choosingSetting[index];
-        choosingSetting[index].classList.add("setting-selected");
+    else if (choosingSetting) {
+        // choosingSetting.forEach(item => item.classList.remove("highlight-tab"));
+        const settingValue = currentIndex === 0 ? volumeItems[currentMenuIndex] : highlightItems[currentMenuIndex];
+        settingValue.classList.add("setting-selected");
     
-        if (choosingSetting === volumeItems) {
-            volumePercent = Number(setting_value.dataset.value);
-        }
-        else if (choosingSetting === hlightItems) {
-            highlightDelaySeconds = Number(setting_value.dataset.value);
+        if (currentIndex === 0) {
+            volumePercent = Number(settingValue.dataset.value);
+        } else if (currentIndex === 1) {
+            highlightDelaySeconds = Number(settingValue.dataset.value);
         }
 
-        console.log("Settings:", "V", volumePercent, "H", highlightDelaySeconds);
+        volumeItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE));
+        highlightItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE));
 
-        clearInterval(intervalID);
-        highlightGridItems(settingsItems);
-        choosingSetting = "none"
-        
+        highlightGridItems(settingsItems, false);
+        choosingSetting = false;
     }
 }
 
@@ -440,7 +442,7 @@ function toggleRadioControlVisibility(radioItem) {
         playButton.style.display = "inline-flex";
         pauseButton.style.display = "none";
     }
-    highlightMenuItems(quitPauseButtons);
+    highlightMenuItems(quitPauseButtons, false);
 }
 
 function setCategoryName(categoryName) {
