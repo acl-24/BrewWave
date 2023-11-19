@@ -51,6 +51,7 @@ let categoryList = {
     "80s": "/Assets/80s.png",
     "90s": "/Assets/90s.png",
     "Alternative": "/Assets/drum-set.png",
+    "Chillout": "/Assets/wind.png",
     "Christmas": "/Assets/wreath.png",
     "Classical": "/Assets/viola.png",
     "Country": "/Assets/guitar.png",
@@ -59,15 +60,41 @@ let categoryList = {
     "Hip-Hop": "/Assets/hip-hop.png",
     "International": "/Assets/earth.png",
     "Jazz": "/Assets/saxophone.png",
-    "K-pop": "/Assets/kpop.png",
     "Kids": "/Assets/tambourine.png",
     "News": "/Assets/newspaper.png",
     "Oldies": "/Assets/sixties.png",
     "Pop": "/Assets/microphone.png",
     "Rock": "/Assets/electric-guitar.png",
+    "Soul": "/Assets/voice-mail.png",
     "Sports": "/Assets/sports.png",
     "Talk": "/Assets/podcast.png",
     "Top 40": "/Assets/40.png"
+};
+
+let station_tags_dictionary={ 
+    "All": [""],
+    "70s": "70s",
+    "80s": "80s", 
+    "90s": "90s",
+    "Alternative": "alternative",
+    "Chillout": "chillout",
+    "Christmas": "christmas music",
+    "Classical": "classical",
+    "Country": "country",
+    "EDM": "edm",
+    "Folk": "folk",
+    "Hip-Hop": "hiphop",
+    "International": "international",
+    "Jazz": "jazz",
+    "Kids": "kids",
+    "News": "news",
+    "Oldies": "oldies",
+    "Pop": "pop",
+    "Rock": "rock",
+    "Soul": "soul",
+    "Sports": "sports",
+    "Talk": "talk",
+    "Top 40": "top 40"
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -421,15 +448,21 @@ function setCategoryName(categoryName) {
 
 async function getRadioStationsByCategory() {
     let categoryName = Object.keys(categoryList)[currentIndex + categoryStartIndex];
-    console.log(currentIndex, categoryStartIndex);
+    let categoryTag = station_tags_dictionary[categoryName];
+    
     setCategoryName(categoryName);
 
     try {
         const stations = await radioBrowserApi.searchStations({
-            tagList: [categoryName.toLowerCase()],
+            tagList: [categoryTag],
+            language: "english",
             limit: 20,
             offset: 0,
+            order: "votes",
+            reverse: true
         });
+
+        console.log(stations);
 
         console.log("Station Retrieved Successfully");
 
