@@ -27,7 +27,7 @@ events = mne.find_events(raw, stim_channel='Stim')
 if not events.size:
     raise ValueError("No events found. Check your data and channel name.")
 
-event_id = {'High': 1, 'Low': 2}
+event_id = {'Active': 2, 'Rest': 2}
 
 # Create epochs
 epochs = mne.Epochs(raw, events, event_id, tmin=0, tmax=3, baseline=(0, 0), preload=True)
@@ -48,7 +48,7 @@ n_epochs, n_channels, n_freqs = psds.shape
 X = psds.reshape(n_epochs, -1)
 
 event_ids = epochs.events[:, -1]
-y = np.where(event_ids == event_id['High'], 'High', 'Low')
+y = np.where(event_ids == event_id['High'], 'High', 'Rest')
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -75,3 +75,14 @@ print('Precision on the test set: {:.3f}%'.format(precision * 100))
 
 print("Predicted labels for the entire dataset:")
 print(y_pred_all)
+
+keyboard = Controller()
+
+
+for i, label in enumerate(y_pred_all):
+    if label == 'Active' and (i == 0 or y_pred_all[i - 1] != 'Active'):
+        keyboard.press('s')
+        keyboard.release('s')
+        time.sleep(2)
+
+
