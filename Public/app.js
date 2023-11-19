@@ -9,11 +9,10 @@ let categoryNameDiv;
 let intervalID;
 let menuIntervalID;
 
-let volumeItems, hlightItems, numRadioItems, numCatItems;
+// settings
+let volumeItems, hlightItems;
 let choosingSetting;
 let settingIndex;
-let numStationsDisplayed;
-
 let volumePercent;
 /**
  * Represents the length that a certain station is highlighted
@@ -90,18 +89,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // default settings
     volumeItems = document.querySelectorAll("#volume-list div");
     hlightItems = document.querySelectorAll("#highlight-list div");
-    numRadioItems = document.querySelectorAll("#num-radio-list div");
-    numCatItems = document.querySelectorAll("#num-categories-list div");
 
     volumeItems[2].classList.add("setting-selected");
     hlightItems[0].classList.add("setting-selected");
-    numRadioItems[1].classList.add("setting-selected");
-    numCatItems[2].classList.add("setting-selected");
 
     volumePercent = 0.5;
     highlightDelaySeconds = 1;
-    numStationsDisplayed = 4;
-    numCategoriesDisplayed = 8;
     choosingSetting = "none";
 
     displayCategories();
@@ -128,7 +121,7 @@ document.addEventListener('keydown', function (e) {
             }
         }
 
-        if (currentSectionDisplayed === sectionList.RADIO) {
+        else if (currentSectionDisplayed === sectionList.RADIO) {
             if (navigationSelected) {
                 handleSKeyPressedRadioNavigation();
             } else {
@@ -333,16 +326,6 @@ function handleSKeyPressedSettings() {
             choosingSetting = hlightItems;
             choosingSetting.forEach(item => item.classList.remove("setting-selected"));
         }
-        else if (settingIndex == 2) {
-            highlightGridItems(numRadioItems);
-            choosingSetting = numRadioItems;
-            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
-        }
-        else if (settingIndex ==3) {
-            highlightGridItems(numCatItems);
-            choosingSetting = numCatItems;
-            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
-        }
         else {
             // navigate back to category screen
             currentSectionDisplayed = sectionList.CATEGORY;
@@ -368,14 +351,8 @@ function handleSKeyPressedSettings() {
         else if (choosingSetting === hlightItems) {
             highlightDelaySeconds = setting_value.dataset.value;
         }
-        else if (choosingSetting === numRadioItems) {
-            numStationsDisplayed = setting_value.dataset.value;
-        }
-        else if (choosingSetting === numCatItems) {
-            numCategoriesDisplayed = setting_value.dataset.value;
-        }
 
-        console.log("Settings:", "V", volumePercent, "H", highlightDelaySeconds, "#S", numStationsDisplayed, "#C", numCategoriesDisplayed);
+        console.log("Settings:", "V", volumePercent, "H", highlightDelaySeconds);
 
         clearInterval(intervalID);
         highlightGridItems(settingsItems);
