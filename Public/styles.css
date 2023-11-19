@@ -6,7 +6,7 @@
     --darker-brown: #3C2F2F;
 }
 html {
-    background: linear-gradient(var(--dark-brown), var(--darker-brown));
+    background: linear-gradient(var(--dark-brown), black);
     height: 100vh;
 }
 
