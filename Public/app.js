@@ -2,13 +2,18 @@
 // JavaScript code goes here
 import {RadioBrowserApi} from 'https://cdn.skypack.dev/radio-browser-api';
 
-let categorySection, radioSection, categoryItems, radioItems, categoryNavigationItems, radioNavigationItems, stationList;
-const sectionList = {CATEGORY: 'category', RADIO: 'radio'};
+let categorySection, radioSection, categoryItems, radioItems, categoryNavigationItems, radioNavigationItems, stationList, settingsSection, settingsItems;
+const sectionList = {CATEGORY: 'category', RADIO: 'radio', SETTINGS: 'settings'};
 let currentSectionDisplayed;
 let categoryNameDiv;
 let intervalID;
 let menuIntervalID;
 
+// settings
+let volumeItems, hlightItems;
+let choosingSetting;
+let settingIndex;
+let volumePercent;
 /**
  * Represents the length that a certain station is highlighted
  * @type {number}
@@ -68,8 +73,10 @@ let categoryList = {
 document.addEventListener('DOMContentLoaded', function () {
     categoryItems = document.querySelectorAll(".category-item");
     radioItems = document.querySelectorAll(".radio-item");
+    settingsItems = document.querySelectorAll(".settings-item");
     categorySection = document.querySelector("#category-tab-section");
     radioSection = document.querySelector("#radio-tab-section");
+    settingsSection = document.querySelector("#settings-tab-section");
     categoryNameDiv = document.querySelector("#category-name");
     categoryNavigationItems = document.querySelectorAll(".category-navigation-icon");
     radioNavigationItems = document.querySelectorAll(".radio-navigation-icon");
@@ -77,6 +84,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // set current tab displayed
     currentSectionDisplayed = sectionList.CATEGORY;
     radioSection.style.display = "none";
+    settingsSection.style.display = "none";
+    
+    // default settings
+    volumeItems = document.querySelectorAll("#volume-list div");
+    hlightItems = document.querySelectorAll("#highlight-list div");
+
+    volumeItems[2].classList.add("setting-selected");
+    hlightItems[0].classList.add("setting-selected");
+
+    volumePercent = 0.5;
+    highlightDelaySeconds = 1;
+    choosingSetting = "none";
 
     displayCategories();
 
@@ -102,7 +121,7 @@ document.addEventListener('keydown', function (e) {
             }
         }
 
-        if (currentSectionDisplayed === sectionList.RADIO) {
+        else if (currentSectionDisplayed === sectionList.RADIO) {
             if (navigationSelected) {
                 handleSKeyPressedRadioNavigation();
             } else {
@@ -115,6 +134,10 @@ document.addEventListener('keydown', function (e) {
                     handleSKeyPressedRadio();
                 }
             }
+        }
+
+        else if (currentSectionDisplayed === sectionList.SETTINGS) {
+            handleSKeyPressedSettings();
         }
     }
 })
@@ -185,6 +208,7 @@ function playPauseRadio(radioPlayer) {
 
 async function handleSKeyPressedRadio() {
     let radioPlayer = radioItems[currentIndex].querySelector(".radio-audio");
+    radioPlayer.volume = volumePercent;
 
     if (!radioPlaying) {
         try {
@@ -223,8 +247,16 @@ function handleSKeyPressedNavigation() {
         displayCategories();
         highlightGridItems(categoryItems);
         navigationSelected = false;
+        
     } else {
-        // TODO: display the settings page
+        // Opens settings
+        currentSectionDisplayed = sectionList.SETTINGS;
+        categorySection.style.display = "none";
+        settingsSection.style.display = "block";
+        clearInterval(intervalID);
+        highlightGridItems(settingsItems);
+        console.log("Opening Settings");
+        navigationSelected = false;
     }
 }
 
@@ -257,7 +289,6 @@ function highlightMenuItems(iconItems) {
     menuIntervalID = setInterval(updateMenuHighlight, highlightDelaySeconds * 1000, visibleGridItems);
 }
 
-
 function highlightGridItems(gridItems, resetIndex=true) {
     clearInterval(intervalID); // Halt the previous highlight operation
     clearInterval(menuIntervalID); // Halt any submenu highlighting
@@ -275,6 +306,61 @@ function updateHighlight(gridItems) {
     gridItems[nextIndex].classList.add(HIGHLIGHT_ITEM_STYLE);
     currentIndex = nextIndex;
 }
+
+// used to navigate between category and settings
+function handleSKeyPressedSettings() {
+    // chooses which setting to modify
+    if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting === "none") {
+        choosingSetting = true;
+        settingIndex = currentIndex;
+        console.log(settingIndex);
+        clearInterval(intervalID);
+        
+        if (settingIndex == 0) {
+            highlightGridItems(volumeItems);
+            choosingSetting =  volumeItems;
+            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
+        }
+        else if (settingIndex == 1) {
+            highlightGridItems(hlightItems);
+            choosingSetting = hlightItems;
+            choosingSetting.forEach(item => item.classList.remove("setting-selected"));
+        }
+        else {
+            // navigate back to category screen
+            currentSectionDisplayed = sectionList.CATEGORY;
+            settingsSection.style.display = "none";
+            categorySection.style.display = "block";
+            clearInterval(intervalID);
+            highlightGridItems(categoryItems);
+            choosingSetting = "none"
+            displayCategories();
+        }
+    }
+    // chooses which value to change the setting to
+    else if (currentSectionDisplayed === sectionList.SETTINGS && choosingSetting !== "none") {
+        let index = currentIndex;
+        let setting_value;
+        choosingSetting.forEach(item => item.classList.remove("highlight-tab"));
+        setting_value = choosingSetting[index];
+        choosingSetting[index].classList.add("setting-selected");
+    
+        if (choosingSetting === volumeItems) {
+            volumePercent = Number(setting_value.dataset.value);
+        }
+        else if (choosingSetting === hlightItems) {
+            highlightDelaySeconds = Number(setting_value.dataset.value);
+        }
+
+        console.log("Settings:", "V", volumePercent, "H", highlightDelaySeconds);
+
+        clearInterval(intervalID);
+        highlightGridItems(settingsItems);
+        choosingSetting = "none"
+        
+    }
+}
+
 
 function updateMenuHighlight(gridItems) {
     gridItems[currentMenuIndex].classList.remove(HIGHLIGHT_ITEM_STYLE);
@@ -335,6 +421,7 @@ function setCategoryName(categoryName) {
 
 async function getRadioStationsByCategory() {
     let categoryName = Object.keys(categoryList)[currentIndex + categoryStartIndex];
+    console.log(currentIndex, categoryStartIndex);
     setCategoryName(categoryName);
 
     try {
