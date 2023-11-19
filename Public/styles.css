@@ -155,36 +155,61 @@ body {
 }
 
 .settings-list-layout {
-    display: grid;
-    grid-template-columns: repeat(1, 3fr);
-    gap: 20px;
-    padding: 20px;
+    width: 100%;
+    padding: 32px 0;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 .settings-item {
+    display: inline-flex;
     border-radius: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 16px 8px;
+    width: 100%;
+    align-content: center;
 }
 
 .settings-item-text {
+    align-self: center;
+    width: 20%;
     color: var(--cream);
+    font-size: 32px;
 }
 
-.settings-value-layout {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
+.go-back-text {
+    font-size: 32px;
+    align-self: center;
+    color: var(--cream);
+    font-weight: 600;
+}
+
+.settings-value-items {
+    width: 100%;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
 .settings-value-item {
     border-radius: 5px;
     background-color: var(--cream);
-    padding-left: 5px;
-    padding-right: 5px;
+    margin: 4px;
+    text-align: center;
+    font-size: 32px;
+    font-weight: 500;
+    flex: 1 0 auto;
+    max-width: 18%;
 }
 
 .settings-value-text {
     color: var(--darker-brown);
+}
+
+.spacer {
+    flex: 1 1 auto;
 }
 
 .setting-selected {
