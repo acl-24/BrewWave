@@ -8,6 +8,9 @@ let categorySection, radioSection, categoryItems, radioItems, categoryNavigation
 const sectionList = {CATEGORY: 'category', RADIO: 'radio', SETTINGS: 'settings'};
 let currentSectionDisplayed;
 
+let lastKeyPressTime = 0;
+let debounceTime = 1000;
+
 /**
  * Interval ID used when starting interval highlighting grid items
  */
@@ -148,41 +151,45 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('keydown', function (e) {
-    const keyPressed = e.key;
-    if (keyPressed === "s") {
-        if (currentSectionDisplayed === sectionList.CATEGORY) {
-            if (navigationSelected) {
-                handleSKeyPressedNavigation();
-            } else {
-                if (currentIndex === settingsIndex) {
-                    clearInterval(intervalID); // Highlight pauses on this item
-                    highlightMenuItems(categoryNavigationItems);
-                    navigationSelected = true;
-                    // Otherwise a category is selected
+    const currentTime = new Date().getTime();
+    if (currentTime - lastKeyPressTime > debounceTime) {
+        const keyPressed = e.key;
+        if (keyPressed === "s") {
+            if (currentSectionDisplayed === sectionList.CATEGORY) {
+                if (navigationSelected) {
+                    handleSKeyPressedNavigation();
                 } else {
-                    handleSKeyPressedCategory();
+                    if (currentIndex === settingsIndex) {
+                        clearInterval(intervalID); // Highlight pauses on this item
+                        highlightMenuItems(categoryNavigationItems);
+                        navigationSelected = true;
+                        // Otherwise a category is selected
+                    } else {
+                        handleSKeyPressedCategory();
+                    }
                 }
             }
-        }
 
-        else if (currentSectionDisplayed === sectionList.RADIO) {
-            if (navigationSelected) {
-                handleSKeyPressedRadioNavigation();
-            } else {
-                if (currentIndex === settingsIndex) {
-                    clearInterval(intervalID);
-                    highlightMenuItems(radioNavigationItems);
-                    navigationSelected = true;
-                    // Otherwise a radio is selected
+            else if (currentSectionDisplayed === sectionList.RADIO) {
+                if (navigationSelected) {
+                    handleSKeyPressedRadioNavigation();
                 } else {
-                    handleSKeyPressedRadio();
+                    if (currentIndex === settingsIndex) {
+                        clearInterval(intervalID);
+                        highlightMenuItems(radioNavigationItems);
+                        navigationSelected = true;
+                        // Otherwise a radio is selected
+                    } else {
+                        handleSKeyPressedRadio();
+                    }
                 }
             }
-        }
 
-        else if (currentSectionDisplayed === sectionList.SETTINGS) {
-            handleSKeyPressedSettings();
+            else if (currentSectionDisplayed === sectionList.SETTINGS) {
+                handleSKeyPressedSettings();
+            }
         }
+        lastKeyPressTime = currentTime;
     }
 })
 
