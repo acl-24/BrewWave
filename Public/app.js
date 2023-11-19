@@ -1,15 +1,13 @@
 // app.js
 // JavaScript code goes here
-import {RadioBrowserApi, StationSearchType} from 'https://cdn.skypack.dev/radio-browser-api';
+import {RadioBrowserApi} from 'https://cdn.skypack.dev/radio-browser-api';
 
-let categorySection, radioSection, categoryItems, radioItems, navigationItems;
-
+let categorySection, radioSection, categoryItems, radioItems, categoryNavigationItems, radioNavigationItems;
 const sectionList = {CATEGORY: 'category', RADIO: 'radio'};
-
 let currentSectionDisplayed;
 let categoryNameDiv;
 let intervalID;
-let menuHighlightId;
+let menuIntervalID;
 
 /**
  * Represents the length that a certain station is highlighted
@@ -28,6 +26,8 @@ let currentMenuIndex = 0;
 let radioPlaying = false;
 let categoryStartIndex = 0;
 let numCategoriesDisplayed = 8;
+let radioStartIndex = 0;
+let numRadiosDisplayed = 5;
 
 /**
  * Represents the index of the settings
@@ -40,14 +40,39 @@ const HIGHLIGHT_ITEM_STYLE = "highlighted-item";
 
 const radioBrowserApi = new RadioBrowserApi('My Radio App')
 
+let categoryList = {
+    "All": "/Assets/audio-waves.png",
+    "70s": "/Assets/abstract.png",
+    "80s": "/Assets/80s.png",
+    "90s": "/Assets/90s.png",
+    "Alternative": "/Assets/drum-set.png",
+    "Christmas": "/Assets/wreath.png",
+    "Classical": "/Assets/viola.png",
+    "Country": "/Assets/guitar.png",
+    "EDM": "/Assets/birthday-and-party.png",
+    "Folk": "/Assets/vinyl-disc.png",
+    "Hip-Hop": "/Assets/hip-hop.png",
+    "International": "/Assets/earth.png",
+    "Jazz": "/Assets/saxophone.png",
+    "K-pop": "/Assets/kpop.png",
+    "Kids": "/Assets/tambourine.png",
+    "News": "/Assets/newspaper.png",
+    "Oldies": "/Assets/sixties.png",
+    "Pop": "/Assets/microphone.png",
+    "Rock": "/Assets/electric-guitar.png",
+    "Sports": "/Assets/sports.png",
+    "Talk": "/Assets/podcast.png",
+    "Top 40": "/Assets/40.png"
+};
 
 document.addEventListener('DOMContentLoaded', function () {
     categoryItems = document.querySelectorAll(".category-item");
     radioItems = document.querySelectorAll(".radio-item");
     categorySection = document.querySelector("#category-tab-section");
     radioSection = document.querySelector("#radio-tab-section");
-    navigationItems = document.querySelectorAll(".navigation-icon");
     categoryNameDiv = document.querySelector("#category-name");
+    categoryNavigationItems = document.querySelectorAll(".category-navigation-icon");
+    radioNavigationItems = document.querySelectorAll(".radio-navigation-icon");
 
     // set current tab displayed
     currentSectionDisplayed = sectionList.CATEGORY;
@@ -63,14 +88,12 @@ document.addEventListener('keydown', function (e) {
     const keyPressed = e.key;
     if (keyPressed === "s") {
         if (currentSectionDisplayed === sectionList.CATEGORY) {
-            // If the navigation tile has already been selected
             if (navigationSelected) {
                 handleSKeyPressedNavigation();
             } else {
-                // If the current index is 0, the navigation tile is selected
                 if (currentIndex === settingsIndex) {
                     clearInterval(intervalID); // Highlight pauses on this item
-                    highlightMenuHighlight(navigationItems);
+                    highlightMenuItems(categoryNavigationItems);
                     navigationSelected = true;
                     // Otherwise a category is selected
                 } else {
@@ -80,7 +103,18 @@ document.addEventListener('keydown', function (e) {
         }
 
         if (currentSectionDisplayed === sectionList.RADIO) {
-            handleSKeyPressedRadio();
+            if (navigationSelected) {
+                handleSKeyPressedRadioNavigation();
+            } else {
+                if (currentIndex === settingsIndex) {
+                    clearInterval(intervalID);
+                    highlightMenuItems(radioNavigationItems);
+                    navigationSelected = true;
+                    // Otherwise a radio is selected
+                } else {
+                    handleSKeyPressedRadio();
+                }
+            }
         }
     }
 })
@@ -100,16 +134,32 @@ function displayCategories() {
 
     settingsIndex = [...categoryItems].filter(gridItem => gridItem.style.display !== "none" && gridItem.id !== "navigation-item").length;
 
-    element = document.getElementById("navigation-item");
+    element = document.getElementById("category-navigation-item");
+    element.style.display = "inline-flex";
+}
+
+// Displays the next set of radios
+function displayRadioStations() {
+    let element;
+    for (let index = 0; index < radioItems.length; index++) {
+        element = radioItems[index];
+
+        if (index >= radioStartIndex && index < radioStartIndex + numRadiosDisplayed) {
+            element.style.display = "inline-flex";
+        } else {
+            element.style.display = "none";
+        }
+    }
+
+    settingsIndex = [...radioItems].filter(gridItem => gridItem.style.display !== "none" && gridItem.id !== "navigation-item").length;
+
+    element = document.getElementById("radio-navigation-item");
     element.style.display = "inline-flex";
 }
 
 async function handleSKeyPressedCategory() {
-    clearInterval(intervalID);
     await getRadioStationsByCategory().then(stationList => {
-        displayRadioStationsInformation(stationList);
-        toggleTabVisibility();
-        highlightGridItems(radioItems);
+        toggleTabVisibility(stationList);
     });
 }
 
@@ -157,7 +207,7 @@ function handleSKeyPressedNavigation() {
             categoryStartIndex += numCategoriesDisplayed;
         }
 
-        navigationItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE));
+        categoryNavigationItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE));
 
         displayCategories();
         highlightGridItems(categoryItems);
@@ -167,13 +217,32 @@ function handleSKeyPressedNavigation() {
     }
 }
 
+// Handles the selection of the navigation buttons on the category page
+function handleSKeyPressedRadioNavigation() {
+    if (currentMenuIndex === 0) { // refresh button
+        // Show the next page of radios
+        if (radioStartIndex + numCategoriesDisplayed > radioItems.length) {
+            radioStartIndex = 0;
+        } else {
+            radioStartIndex += numRadiosDisplayed;
+        }
+
+        displayRadioStations();
+        highlightGridItems(radioItems);
+    } else { // Go back to categories
+        toggleTabVisibility();
+    }
+
+    radioNavigationItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE));
+    navigationSelected = false
+}
+
 function displayRadioStationsInformation(stationList) {
     let radioNameElements = document.querySelectorAll(".radio-item-name")
     let radioPlayers = document.querySelectorAll(".radio-audio")
 
     radioNameElements.forEach((element, index) => {
-        let stationName = stationList[index].name;
-        element.textContent = stationName;
+        element.textContent = stationList[index].name;
     });
 
     radioPlayers.forEach((element, index) => {
@@ -181,20 +250,20 @@ function displayRadioStationsInformation(stationList) {
     });
 }
 
-function highlightMenuHighlight(iconItems) {
-    clearInterval(menuHighlightId); // Halt the previous highlight operation
+function highlightMenuItems(iconItems) {
+    clearInterval(menuIntervalID); // Halt the previous highlight operation
     currentMenuIndex = 0;
     iconItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE)); // Remove highlight from all previous items
 
     const visibleGridItems = [...iconItems].filter(gridItem => gridItem.style.display !== "none");
     visibleGridItems[currentMenuIndex].classList.add(HIGHLIGHT_ITEM_STYLE);
-    menuHighlightId = setInterval(updateMenuHighlight, highlightDelaySeconds * 1000, visibleGridItems);
+    menuIntervalID = setInterval(updateMenuHighlight, highlightDelaySeconds * 1000, visibleGridItems);
 }
 
 
 function highlightGridItems(gridItems, resetIndex=true) {
     clearInterval(intervalID); // Halt the previous highlight operation
-    clearInterval(menuHighlightId); // Halt any submenu highlighting
+    clearInterval(menuIntervalID); // Halt any submenu highlighting
     currentIndex = resetIndex ? 0 : currentIndex;
     gridItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE)); // Remove highlight from all previous items
 
@@ -217,15 +286,22 @@ function updateMenuHighlight(gridItems) {
     currentMenuIndex = nextIndex;
 }
 
-function toggleTabVisibility() {
+function toggleTabVisibility(stationList=undefined) {
+    clearInterval(intervalID);
+    clearInterval(menuIntervalID);
     if (currentSectionDisplayed === sectionList.CATEGORY) {
         currentSectionDisplayed = sectionList.RADIO;
         categorySection.style.display = "none";
         radioSection.style.display = "block";
+        displayRadioStationsInformation(stationList);
+        displayRadioStations();
+        highlightGridItems(radioItems);
     } else {
         currentSectionDisplayed = sectionList.CATEGORY;
         categorySection.style.display = "block";
         radioSection.style.display = "none";
+        displayCategories();
+        highlightGridItems(categoryItems);
     }
 }
 
@@ -254,7 +330,7 @@ function toggleRadioControlVisibility(radioItem) {
         playButton.style.display = "inline-flex";
         pauseButton.style.display = "none";
     }
-    highlightMenuHighlight(quitPauseButtons);
+    highlightMenuItems(quitPauseButtons);
 }
 
 function setCategoryName(categoryName) {

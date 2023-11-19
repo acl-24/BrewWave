@@ -91,13 +91,18 @@ body {
     padding: 8px;
 }
 
-.navigation-icon {
+.category-navigation-icon, .radio-navigation-icon {
     outline: none !important;
     max-height: 76px;
     max-width: 76px;
     align-self: center;
     flex: auto;
     padding: 16px 8px;
+}
+
+.radio-navigation-icon {
+    max-height: 48px !important;
+    max-width: 48px !important;
 }
 
 .radio-list-layout {
