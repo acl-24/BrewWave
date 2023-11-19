@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BrewWaves</title>
+    <title>App Name</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
+
 <body>
     <script type="module">
         import { RadioBrowserApi, StationSearchType } from 'https://cdn.skypack.dev/radio-browser-api';
     </script>
     <script src="app.js" type="module"></script>
-
-    <div class="app-name-section">
-        <div class="app-title-text">BrewWaves</div>
+    <div class="app-name-section"> 
+        <h2 class="app-title-text">This is the App Name</h2>
     </div>
 
     <div class="tab-section" id="category-tab-section">
         <div class="tab-section-subtitle" id="catogory-section-subtitle">
             <h3 class="app-subtitle-text">Choose a category to begin</h3>
         </div>
-
         <div class="category-list-layout" id="category-list">
             <div class="category-item">
                 <p class="category-item-text">All</p>
@@ -123,5 +122,54 @@
             </div>
         </div>
     </div>
+
+    <div class="tab-section" id="settings-tab-section">
+        <div class="settings-list-layout" id="settings-list">
+            <div class="settings-item">
+                <div class="settings-value-layout" id="volume-list">
+                    <p class="settings-item-text">Sound Volume</p>
+                    <div class="settings-value-item" data-value="0">
+                        <p class="settings-value-text">0%</p>
+                    </div>
+                    <div class="settings-value-item" data-value="0.25">
+                        <p class="settings-value-text">25%</p>
+                    </div>
+                    <div class="settings-value-item" data-value="0.50">
+                        <p class="settings-value-text">50%</p>
+                    </div>
+                    <div class="settings-value-item" data-value="0.75">
+                        <p class="settings-value-text">75%</p>
+                    </div>
+                    <div class="settings-value-item" data-value="1">
+                        <p class="settings-value-text">100%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-value-layout" id="highlight-list">
+                    <p class="settings-item-text">Highlight Stay Time</p>
+                    <div class="settings-value-item" data-value="1">
+                        <p class="settings-value-text">1s</p>
+                    </div>
+                    <div class="settings-value-item" data-value="2">
+                        <p class="settings-value-text">2s</p>
+                    </div>
+                    <div class="settings-value-item" data-value="3">
+                        <p class="settings-value-text">3s</p>
+                    </div>
+                    <div class="settings-value-item" data-value="4">
+                        <p class="settings-value-text">4s</p>
+                    </div>
+                    <div class="settings-value-item" data-value="5">
+                        <p class="settings-value-text">5s</p>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-item">
+                <p class="settings-item-text">Go Back</p>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
