@@ -2,7 +2,7 @@
 // JavaScript code goes here
 import {RadioBrowserApi} from 'https://cdn.skypack.dev/radio-browser-api';
 
-let categorySection, radioSection, categoryItems, radioItems, categoryNavigationItems, radioNavigationItems;
+let categorySection, radioSection, categoryItems, radioItems, categoryNavigationItems, radioNavigationItems, stationList;
 const sectionList = {CATEGORY: 'category', RADIO: 'radio'};
 let currentSectionDisplayed;
 let categoryNameDiv;
@@ -144,25 +144,28 @@ function displayCategories() {
 }
 
 // Displays the next set of radios
-function displayRadioStations(stationList) {
-    let radioNameElements = document.querySelectorAll(".radio-item-name")
-    let radioPlayers = document.querySelectorAll(".radio-audio")
+function displayRadioStations() {
+    let radioNameElements = document.querySelectorAll(".radio-item-name");
+    let radioPlayers = document.querySelectorAll(".radio-audio");
 
-    radioNameElements.forEach((element, index) => {
-        element.textContent = stationList[index].name;
-    });
+    for (let index = radioStartIndex; index < stationList.length && index < radioStartIndex + numRadiosDisplayed; index++) {
+        radioItems[index % numRadiosDisplayed].style.display = "inline-flex";
+        radioNameElements[index % numRadiosDisplayed].textContent = stationList[index].name;
+        radioPlayers[index % numRadiosDisplayed].src = stationList[index].urlResolved;
+    }
 
-    radioPlayers.forEach((element, index) => {
-        element.src = stationList[index].urlResolved;
-    });
-
-    settingsIndex = numRadiosDisplayed;
+    settingsIndex = Math.min(numRadiosDisplayed, stationList.length - categoryStartIndex);
+    for (let index = settingsIndex; index < numRadiosDisplayed; index++) {
+        // Hide items which have no category name
+        radioItems[index].style.display = "none";
+    }
 }
 
 async function handleSKeyPressedCategory() {
     clearInterval(intervalID);
-    await getRadioStationsByCategory().then(stationList => {
-        toggleTabVisibility(stationList);
+    await getRadioStationsByCategory().then(sl => {
+        stationList = sl;
+        toggleTabVisibility();
     });
 }
 
@@ -224,12 +227,11 @@ function handleSKeyPressedNavigation() {
 function handleSKeyPressedRadioNavigation() {
     if (currentMenuIndex === 0) { // refresh button
         // Show the next page of radios
-        if (radioStartIndex + numCategoriesDisplayed > radioItems.length) {
+        if (radioStartIndex + numCategoriesDisplayed > stationList.length) {
             radioStartIndex = 0;
         } else {
             radioStartIndex += numRadiosDisplayed;
         }
-
         displayRadioStations();
         highlightGridItems(radioItems);
     } else { // Go back to categories
@@ -276,14 +278,14 @@ function updateMenuHighlight(gridItems) {
     currentMenuIndex = nextIndex;
 }
 
-function toggleTabVisibility(stationList=undefined) {
+function toggleTabVisibility() {
     clearInterval(intervalID);
     clearInterval(menuIntervalID);
     if (currentSectionDisplayed === sectionList.CATEGORY) {
         currentSectionDisplayed = sectionList.RADIO;
         categorySection.style.display = "none";
         radioSection.style.display = "block";
-        displayRadioStations(stationList);
+        displayRadioStations();
         highlightGridItems(radioItems);
     } else {
         currentSectionDisplayed = sectionList.CATEGORY;
