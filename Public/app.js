@@ -160,6 +160,7 @@ function displayRadioStations(stationList) {
 }
 
 async function handleSKeyPressedCategory() {
+    clearInterval(intervalID);
     await getRadioStationsByCategory().then(stationList => {
         toggleTabVisibility(stationList);
     });
