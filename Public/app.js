@@ -119,42 +119,44 @@ document.addEventListener('keydown', function (e) {
     }
 })
 
+function numCategories() {
+    return Object.keys(categoryList).length;
+}
+
 // Displays the next set of categories
 function displayCategories() {
-    let element;
-    for (let index = 0; index < categoryItems.length; index++) {
-        element = categoryItems[index];
-
-        if (index >= categoryStartIndex && index < categoryStartIndex + numCategoriesDisplayed) {
-            element.style.display = "inline-flex";
-        } else {
-            element.style.display = "none";
-        }
+    let categoryNameElements = document.querySelectorAll(".category-item-text")
+    let categoryIcons = document.querySelectorAll(".category-icon")
+    for (let index = categoryStartIndex; index < numCategories() && index < categoryStartIndex + numCategoriesDisplayed; index++) {
+        categoryItems[index % numCategoriesDisplayed].style.display = "inline-flex";
+        categoryNameElements[index % numCategoriesDisplayed].textContent = Object.keys(categoryList)[index];
+        categoryIcons[index % numCategoriesDisplayed].src = Object.values(categoryList)[index];
     }
 
-    settingsIndex = [...categoryItems].filter(gridItem => gridItem.style.display !== "none" && gridItem.id !== "navigation-item").length;
+    settingsIndex = Math.min(numCategoriesDisplayed, numCategories() - categoryStartIndex);
+    for (let index = settingsIndex; index < numCategoriesDisplayed; index++) {
+        // Hide items which have no category name
+        categoryItems[index].style.display = "none";
+    }
 
-    element = document.getElementById("category-navigation-item");
+    let element = document.getElementById("category-navigation-item");
     element.style.display = "inline-flex";
 }
 
 // Displays the next set of radios
-function displayRadioStations() {
-    let element;
-    for (let index = 0; index < radioItems.length; index++) {
-        element = radioItems[index];
+function displayRadioStations(stationList) {
+    let radioNameElements = document.querySelectorAll(".radio-item-name")
+    let radioPlayers = document.querySelectorAll(".radio-audio")
 
-        if (index >= radioStartIndex && index < radioStartIndex + numRadiosDisplayed) {
-            element.style.display = "inline-flex";
-        } else {
-            element.style.display = "none";
-        }
-    }
+    radioNameElements.forEach((element, index) => {
+        element.textContent = stationList[index].name;
+    });
 
-    settingsIndex = [...radioItems].filter(gridItem => gridItem.style.display !== "none" && gridItem.id !== "navigation-item").length;
+    radioPlayers.forEach((element, index) => {
+        element.src = stationList[index].urlResolved;
+    });
 
-    element = document.getElementById("radio-navigation-item");
-    element.style.display = "inline-flex";
+    settingsIndex = numRadiosDisplayed;
 }
 
 async function handleSKeyPressedCategory() {
@@ -201,7 +203,7 @@ async function handleSKeyPressedRadio() {
 function handleSKeyPressedNavigation() {
     if (currentMenuIndex ===  0) { // Refresh button
         // Show the next page of categories
-        if (categoryStartIndex + numCategoriesDisplayed > categoryItems.length) {
+        if (categoryStartIndex + numCategoriesDisplayed > numCategories()) {
             categoryStartIndex = 0;
         } else {
             categoryStartIndex += numCategoriesDisplayed;
@@ -235,19 +237,6 @@ function handleSKeyPressedRadioNavigation() {
 
     radioNavigationItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE));
     navigationSelected = false
-}
-
-function displayRadioStationsInformation(stationList) {
-    let radioNameElements = document.querySelectorAll(".radio-item-name")
-    let radioPlayers = document.querySelectorAll(".radio-audio")
-
-    radioNameElements.forEach((element, index) => {
-        element.textContent = stationList[index].name;
-    });
-
-    radioPlayers.forEach((element, index) => {
-        element.src = stationList[index].urlResolved;
-    });
 }
 
 function highlightMenuItems(iconItems) {
@@ -293,8 +282,7 @@ function toggleTabVisibility(stationList=undefined) {
         currentSectionDisplayed = sectionList.RADIO;
         categorySection.style.display = "none";
         radioSection.style.display = "block";
-        displayRadioStationsInformation(stationList);
-        displayRadioStations();
+        displayRadioStations(stationList);
         highlightGridItems(radioItems);
     } else {
         currentSectionDisplayed = sectionList.CATEGORY;
@@ -338,8 +326,7 @@ function setCategoryName(categoryName) {
 }
 
 async function getRadioStationsByCategory() {
-    let categoryItem = categoryItems[categoryStartIndex + currentIndex];
-    let categoryName = categoryItem.querySelector("p").innerText;
+    let categoryName = Object.keys(categoryList)[currentIndex + categoryStartIndex];
     setCategoryName(categoryName);
 
     try {
