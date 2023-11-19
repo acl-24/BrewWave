@@ -346,10 +346,10 @@ function handleSKeyPressedSettings() {
         choosingSetting[index].classList.add("setting-selected");
     
         if (choosingSetting === volumeItems) {
-            volumePercent = setting_value.dataset.value;
+            volumePercent = Number(setting_value.dataset.value);
         }
         else if (choosingSetting === hlightItems) {
-            highlightDelaySeconds = setting_value.dataset.value;
+            highlightDelaySeconds = Number(setting_value.dataset.value);
         }
 
         console.log("Settings:", "V", volumePercent, "H", highlightDelaySeconds);
