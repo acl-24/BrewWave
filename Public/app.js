@@ -15,12 +15,12 @@ var navigationSelected = false;
 const radio_api = new RadioBrowserApi('My Radio App')
 
 let station_tags_dictionary={ 
-    "All": ["70s", "80s", "90s", "alternative", "christmas music", "classical", "country",
-    "edm", "folk", "hiphop", "international", "jazz", "k-pop", "juvenil", "news", "oldies", "pop", "rock", "sports", "talk", "top 40"],
-    "70s": "70s", 
+    "All": [""],
+    "70s": "70s",
     "80s": "80s", 
     "90s": "90s",
     "Alternative": "alternative",
+    "Chillout": "chillout",
     "Christmas": "christmas music",
     "Classical": "classical",
     "Country": "country",
@@ -29,12 +29,12 @@ let station_tags_dictionary={
     "Hip-Hop": "hiphop",
     "International": "international",
     "Jazz": "jazz",
-    "K-Pop": "k-pop",
-    "Kids": "juvenil",
+    "Kids": "kids",
     "News": "news",
     "Oldies": "oldies",
     "Pop": "pop",
     "Rock": "rock",
+    "Soul": "soul",
     "Sports": "sports",
     "Talk": "talk",
     "Top 40": "top 40"
@@ -213,13 +213,13 @@ async function getRadioStationByCategory(){
     try {
         const stations = await radio_api.searchStations({
           tagList: [categoryTag],
-        //   country: "Canada",
-        //   language: "english",
+          language: "english",
           limit: 20,
           offset: 0,
+          order: "votes",
+          reverse: true
         });
 
-        stations.sort(byProperty("votes"));
         console.log(stations);
 
         console.log("Station Retrieved Successully");
@@ -230,13 +230,3 @@ async function getRadioStationByCategory(){
         throw new Error('Error fetching radio stations');
       }
 }
-
-var byProperty = function(prop) {
-    return function(a,b) {
-        if (typeof b[prop] == "number") {
-            return (b[prop] - a[prop]);
-        } else {
-            return ((b[prop] < a[prop]) ? -1 : ((b[prop] > a[prop]) ? 1 : 0));
-        }
-    };
-};
