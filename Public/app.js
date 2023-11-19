@@ -9,7 +9,6 @@ const sectionList = {CATEGORY: 'category', RADIO: 'radio', SETTINGS: 'settings'}
 let currentSectionDisplayed;
 
 let lastKeyPressTime = 0;
-let debounceTime = 1000;
 
 /**
  * Interval ID used when starting interval highlighting grid items
@@ -57,6 +56,8 @@ let categoryStartIndex = 0;
 let numCategoriesDisplayed = 8;
 let radioStartIndex = 0;
 let numRadiosDisplayed = 5;
+let debounceTime = highlightDelaySeconds * 1000;
+
 
 /**
  * Represents the index of the settings within the radio and category pages, set when we refresh the pages
@@ -388,6 +389,7 @@ function handleSKeyPressedSettings() {
             volumePercent = Number(settingValue.dataset.value);
         } else if (currentIndex === 1) {
             highlightDelaySeconds = Number(settingValue.dataset.value);
+            debounceTime = highlightDelaySeconds * 1000;
         }
 
         volumeItems.forEach(item => item.classList.remove(HIGHLIGHT_ITEM_STYLE));
