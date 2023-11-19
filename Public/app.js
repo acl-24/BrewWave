@@ -148,6 +148,7 @@ function displayRadioStations() {
     let radioNameElements = document.querySelectorAll(".radio-item-name");
     let radioPlayers = document.querySelectorAll(".radio-audio");
 
+
     for (let index = radioStartIndex; index < stationList.length && index < radioStartIndex + numRadiosDisplayed; index++) {
         radioItems[index % numRadiosDisplayed].style.display = "inline-flex";
         radioNameElements[index % numRadiosDisplayed].textContent = stationList[index].name;
@@ -186,8 +187,12 @@ async function handleSKeyPressedRadio() {
     let radioPlayer = radioItems[currentIndex].querySelector(".radio-audio");
 
     if (!radioPlaying) {
-        clearInterval(intervalID); // Highlight pauses on this item
-        await radioPlayer.play();
+        try {
+            await radioPlayer.play();
+            clearInterval(intervalID); // Highlight pauses on this item
+        } catch (e) {
+            return;
+        }
         radioPlaying = true;
         toggleAudioControlVisibility();
         toggleRadioControlVisibility(radioItems[currentIndex]);
