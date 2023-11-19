@@ -59,7 +59,7 @@ body {
 }
 
 .highlighted-item {
-    outline: 5px solid var(--beige);
+    outline: 8px solid var(--beige);
     -webkit-filter: drop-shadow(0 0 3px var(--maroon));
 }
 
@@ -91,13 +91,18 @@ body {
     padding: 8px;
 }
 
-.navigation-icon {
+.category-navigation-icon, .radio-navigation-icon {
     outline: none !important;
     max-height: 76px;
     max-width: 76px;
     align-self: center;
     flex: auto;
     padding: 16px 8px;
+}
+
+.radio-navigation-icon {
+    max-height: 48px !important;
+    max-width: 48px !important;
 }
 
 .radio-list-layout {
@@ -123,10 +128,10 @@ body {
 }
 
 .radio-item-name {
-    box-sizing: content-box;
     color: var(--darker-brown);
     flex: initial;
-    max-width: 60%;
+    font-size: 24px;
+    max-width: 80%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -144,6 +149,7 @@ body {
 }
 
 .icon-button {
+    outline: none !important;
     background-color: transparent;
     border: none;
 }
