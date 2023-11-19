@@ -205,7 +205,7 @@ function displayRadioStations() {
         radioPlayers[index % numRadiosDisplayed].src = stationList[index].urlResolved;
     }
 
-    settingsIndex = Math.min(numRadiosDisplayed, stationList.length - categoryStartIndex);
+    settingsIndex = Math.min(numRadiosDisplayed, stationList.length - radioStartIndex);
     for (let index = settingsIndex; index < numRadiosDisplayed; index++) {
         // Hide items which have no category name
         radioItems[index].style.display = "none";
@@ -214,6 +214,7 @@ function displayRadioStations() {
 
 async function handleSKeyPressedCategory() {
     clearInterval(intervalID);
+    radioStartIndex = 0;
     await getRadioStationsByCategory().then(sl => {
         stationList = sl;
         toggleTabVisibility();
