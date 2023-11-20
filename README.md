@@ -1,6 +1,6 @@
 # BrewWave
 
-![Alt text]([image_url](https://github.com/acl-24/BrewWave/blob/main/Assets/Screen_Shot_2023-11-18_at_11.27.30_PM.png))
+![Alt text](https://github.com/acl-24/BrewWave/blob/main/Assets/Screen_Shot_2023-11-18_at_11.27.30_PM.png)
 
 ## About the App
 BrewWave is a BCI-enabled radio playing web app that allows users to control radio playback using their brain signals. By leveraging EEG data, users can effortlessly switch between radio stations, pause, and resume playback, creating a seamless and hands-free radio experience.
