@@ -11,5 +11,7 @@ Our inspiration for BrewWave comes from the desire to create a unique and immers
 Team Member: Ayan Abbas, Elena Arnold, Ian Gauk, Alex Liu, Kaitlyn Stark
 
 ## Running the App
-1. `cd Public` 
-2. `node server.cjs`
+Node.js installation is required
+1. `npm install` for installing node dependency
+2. `cd Public` 
+3. `node server.cjs` starts express server at http://localhost:4000
