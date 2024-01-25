@@ -7,6 +7,8 @@ BrewWave is a BCI-enabled radio playing web app that allows users to control rad
 
 Our inspiration for BrewWave comes from the desire to create a unique and immersive experience by combining brain-computer interface (BCI) technology with radio streaming. We aimed to revolutionize the way users interact with and control their radio stations through neural signals. Our goal was to create accessibility options for individuals with severe disabilities, allowing them the freedom to choose a radio station of their preference and providing them with more independence.
 
+For more information, please check out the project webiste: https://devpost.com/software/brewwave
+
 ## Contributions
 Team Member: Ayan Abbas, Elena Arnold, Ian Gauk, Alex Liu, Kaitlyn Stark
 
@@ -15,3 +17,4 @@ Node.js installation is required
 1. `npm install` for installing node dependency
 2. `cd Public` 
 3. `node server.cjs` starts express server at http://localhost:4000
+   
